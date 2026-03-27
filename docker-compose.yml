@@ -1,0 +1,17 @@
+version: "2.1"
+
+services:
+    est:
+        build: .
+        env_file:
+            - local.env
+        ports:
+            - 8000:8000
+    postgres:
+        image: "postgres:latest"
+        environment:
+            - POSTGRES_USER=user
+            - POSTGRES_PASSWORD=password
+            - POSTGRES_DB=est
+        ports:
+            - "5432:5432"

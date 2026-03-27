@@ -1,0 +1,11 @@
+from sqlalchemy import Column, DateTime, func
+from sqlalchemy.orm import declarative_base
+
+Base = declarative_base()
+
+
+class BaseEstModel(Base):
+    __abstract__ = True
+
+    created_at = Column(DateTime(timezone=True), default=func.now(), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

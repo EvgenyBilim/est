@@ -1,0 +1,37 @@
+[project]
+name = "est"
+version = "0.1.0"
+description = "Estate Service"
+authors = [
+    {name = "Evgeny Bilim",email = "evgenybilim@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic (>=1.14.0,<2.0.0)",
+    "fastapi (>=0.115.6,<0.116.0)",
+    "uvicorn (>=0.34.0,<0.35.0)",
+    "pydantic-settings (>=2.7.1,<3.0.0)",
+    "asyncpg (>=0.30.0,<0.31.0)",
+    "psycopg (>=3.2.3,<4.0.0)",
+    "isort (>=5.13.2,<6.0.0)",
+    "greenlet (>=3.1.1,<4.0.0)",
+    "orjson (>=3.10.18,<4.0.0)",
+    "ruff (>=0.14.11,<0.15.0)",
+    "mypy (>=1.19.1,<2.0.0)",
+    "sniffio (>=1.3.1,<2.0.0)"
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+select = ["I"]
+
+[tool.ruff.isort]
+known-first-party = ["src"]
+combine-as-imports = true

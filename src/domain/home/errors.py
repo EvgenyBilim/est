@@ -1,0 +1,4 @@
+
+
+class DomainError(BaseException):
+    pass
