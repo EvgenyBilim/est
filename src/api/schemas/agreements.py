@@ -11,6 +11,7 @@ class AgreementTypeCreateSchema(BaseModel):
 
 # Response-модели
 
+
 class AgreementTypeModel(BaseModel):
     uuid: UUID
     name: str

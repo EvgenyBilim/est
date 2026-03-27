@@ -22,6 +22,7 @@ class MetropolitanCreateSchema(BaseModel):
 
 # Response-модели
 
+
 class MetroStationModel(BaseModel):
     uuid: UUID
     name: str

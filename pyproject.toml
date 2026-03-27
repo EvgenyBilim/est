@@ -33,8 +33,25 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
 select = ["I"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "C4", "ISC", "SLF", "RUF012"]
+"src/*" = ["PT"]
+
+[tool.ruff.lint.isort]
 known-first-party = ["src"]
 combine-as-imports = true
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = [
+    "classmethod",
+    "pydantic.validator",
+    "pydantic.root_validator",
+]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Form", "fastapi.Body"]

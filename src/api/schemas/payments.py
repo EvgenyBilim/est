@@ -11,6 +11,7 @@ class PaymentTypeCreateSchema(BaseModel):
 
 # Response-модели
 
+
 class PaymentTypeModel(BaseModel):
     uuid: UUID
     name: str

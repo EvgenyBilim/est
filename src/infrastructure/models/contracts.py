@@ -9,7 +9,7 @@ class AgreementType(BaseEstModel):
 
     uuid = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     name = Column(String(255), nullable=False, index=True)
-    location_uuid = Column(UUID(as_uuid=True), ForeignKey('locations.uuid', ondelete='CASCADE'), index=True)
+    location_uuid = Column(UUID(as_uuid=True), ForeignKey("locations.uuid", ondelete="CASCADE"), index=True)
 
 
 class PaymentType(BaseEstModel):
@@ -17,4 +17,4 @@ class PaymentType(BaseEstModel):
 
     uuid = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     name = Column(String(255), nullable=False, index=True)
-    location_uuid = Column(UUID(as_uuid=True), ForeignKey('locations.uuid', ondelete='CASCADE'), index=True)
+    location_uuid = Column(UUID(as_uuid=True), ForeignKey("locations.uuid", ondelete="CASCADE"), index=True)

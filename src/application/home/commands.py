@@ -16,6 +16,7 @@ from src.enums import (
 
 # Данные для синхронизации
 
+
 @dataclass(frozen=True)
 class PlanSyncData:
     rooms: RoomTypeEnum
@@ -83,6 +84,7 @@ class HomeSyncData:
 
 # Данные для создания/добавления
 
+
 @dataclass(frozen=True)
 class MetroStationCreateData:
     station_uuid: UUID
@@ -123,6 +125,7 @@ class BlockCreateData:
 
 
 # Команды
+
 
 @dataclass(frozen=True)
 class HomeCreateCommand:

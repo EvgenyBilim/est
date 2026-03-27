@@ -32,10 +32,7 @@ class GetCountriesByAgreementTypes(BaseDBEntity):
         if not agreement_uuids:
             return []
 
-        query = (
-            select(distinct(AgreementType.location_uuid))
-            .where(AgreementType.uuid.in_(agreement_uuids))
-        )
+        query = select(distinct(AgreementType.location_uuid)).where(AgreementType.uuid.in_(agreement_uuids))
 
         result = await self._connection.execute(query)
         return list(result.scalars().all())

@@ -41,9 +41,7 @@ class HomeQueryRepository(BaseDBEntity):
         if not home_row:
             return None
 
-        metro_stations = [
-            MetroStationResponse(**station) for station in home_row.metro_stations
-        ]
+        metro_stations = [MetroStationResponse(**station) for station in home_row.metro_stations]
 
         blocks = await self._get_blocks(home_uuid)
         plans = await self._get_plans(home_uuid)
@@ -93,11 +91,7 @@ class HomeQueryRepository(BaseDBEntity):
         developer_alias = DeveloperTable.__table__.alias()
 
         home_result = await self._connection.execute(
-            select(
-                HomeTable,
-                HomeInfoTable,
-                developer_alias.c.name.label("developer_name")
-            )
+            select(HomeTable, HomeInfoTable, developer_alias.c.name.label("developer_name"))
             .join(HomeInfoTable, HomeTable.uuid == HomeInfoTable.uuid)
             .join(developer_alias, HomeTable.developer_uuid == developer_alias.c.uuid)
             .where(HomeTable.uuid == home_uuid)
@@ -105,9 +99,7 @@ class HomeQueryRepository(BaseDBEntity):
         return home_result.mappings().first()
 
     async def _get_blocks(self, home_uuid: str) -> list[BlockResponse]:
-        blocks_result = await self._connection.execute(
-            select(BlockTable).where(BlockTable.home_uuid == home_uuid)
-        )
+        blocks_result = await self._connection.execute(select(BlockTable).where(BlockTable.home_uuid == home_uuid))
         return [BlockResponse(**row) for row in blocks_result.mappings()]
 
     async def _get_plans(self, home_uuid: str) -> list[PlanResponse]:
@@ -248,15 +240,12 @@ class HomeQueryRepository(BaseDBEntity):
         )
 
         if filters.location:
-            inner = inner.join(
-                HomeLocationTable, HomeLocationTable.home_uuid == HomeTable.uuid
-            ).where(
+            inner = inner.join(HomeLocationTable, HomeLocationTable.home_uuid == HomeTable.uuid).where(
                 HomeLocationTable.location_uuid.in_(filters.location)
             )
 
         inner = (
-            inner
-            .where(
+            inner.where(
                 or_(
                     HomeTagTable.tag.ilike(f"{tag}%"),
                     literal(tag).op("<%")(HomeTagTable.tag),
@@ -267,11 +256,7 @@ class HomeQueryRepository(BaseDBEntity):
         )
 
         subq = inner.subquery()
-        outer = (
-            select(subq.c.uuid, subq.c.name)
-            .order_by(subq.c.score.desc())
-            .limit(filters.limit)
-        )
+        outer = select(subq.c.uuid, subq.c.name).order_by(subq.c.score.desc()).limit(filters.limit)
 
         result = await self._connection.execute(outer)
         return [HomeNameResponse(uuid=row.uuid, name=row.name) for row in result]
@@ -281,8 +266,7 @@ class HomeQueryRepository(BaseDBEntity):
         # home_tags
         if filters.name is not None:
             query = (
-                query
-                .join(HomeTagTable, HomeTable.uuid == HomeTagTable.home_uuid)
+                query.join(HomeTagTable, HomeTable.uuid == HomeTagTable.home_uuid)
                 .where(HomeTagTable.tag.ilike(f"%{filters.name}%"))
                 .distinct(HomeTable.uuid)
             )
@@ -326,19 +310,19 @@ class HomeQueryRepository(BaseDBEntity):
             query = query.where(HomeInfoTable.agreement_types.overlap(filters.agreement_type))
 
         # plans
-        needs_plans_join = any([
-            filters.rooms,
-            filters.price_from,
-            filters.price_to,
-            filters.square_total_from,
-            filters.square_total_to,
-            filters.square_kitchen_from,
-            filters.square_kitchen_to,
-        ])
+        needs_plans_join = any(
+            [
+                filters.rooms,
+                filters.price_from,
+                filters.price_to,
+                filters.square_total_from,
+                filters.square_total_to,
+                filters.square_kitchen_from,
+                filters.square_kitchen_to,
+            ]
+        )
         if needs_plans_join:
-            query = query.join(
-                BlockTable, HomeTable.uuid == BlockTable.home_uuid
-            ).join(
+            query = query.join(BlockTable, HomeTable.uuid == BlockTable.home_uuid).join(
                 PlanTable, BlockTable.uuid == PlanTable.block_uuid
             )
 
@@ -364,17 +348,14 @@ class HomeQueryRepository(BaseDBEntity):
 
         # locations
         if filters.location:
-            query = (
-                query
-                .join(HomeLocationTable, HomeTable.uuid == HomeLocationTable.home_uuid)
-                .where(HomeLocationTable.location_uuid.in_(filters.location))
+            query = query.join(HomeLocationTable, HomeTable.uuid == HomeLocationTable.home_uuid).where(
+                HomeLocationTable.location_uuid.in_(filters.location)
             )
 
         # metro_station
         if filters.metro:
-            query = query.join(
-                HomeMetroStationTable,
-                HomeTable.uuid == HomeMetroStationTable.home_uuid
-            ).where(HomeMetroStationTable.station_uuid.in_(filters.metro))
+            query = query.join(HomeMetroStationTable, HomeTable.uuid == HomeMetroStationTable.home_uuid).where(
+                HomeMetroStationTable.station_uuid.in_(filters.metro)
+            )
 
         return query

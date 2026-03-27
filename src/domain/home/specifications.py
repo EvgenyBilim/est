@@ -14,12 +14,10 @@ class HomeSpecification(ABC):
     @abstractmethod
     async def is_satisfied_by(self, home: Home) -> bool:
         """Проверка с результатом True/False"""
-        pass
 
     @abstractmethod
     async def check(self, home: Home) -> None:
         """Проверка с выбросом исключения при нарушении"""
-        pass
 
 
 class AgreementsMatchCountrySpec(HomeSpecification):
@@ -29,20 +27,13 @@ class AgreementsMatchCountrySpec(HomeSpecification):
         self._agreements_repo = agreements_repo
 
     async def is_satisfied_by(self, home: Home) -> bool:
-        agreement_uuids = [
-            plan.agreement_uuid
-            for block in home.blocks
-            for plan in block.plans
-            if plan.agreement_uuid
-        ]
+        agreement_uuids = [plan.agreement_uuid for block in home.blocks for plan in block.plans if plan.agreement_uuid]
 
         if not agreement_uuids:
             return True
 
         async with self._agreements_repo() as repo:
-            country_uuids = await repo.get_countries_by_agreement_types(
-                agreement_uuids=agreement_uuids
-            )
+            country_uuids = await repo.get_countries_by_agreement_types(agreement_uuids=agreement_uuids)
 
         if len(country_uuids) > 1:
             return False
@@ -50,20 +41,13 @@ class AgreementsMatchCountrySpec(HomeSpecification):
         return country_uuids[0] in home.location_uuids
 
     async def check(self, home: Home) -> None:
-        agreement_uuids = [
-            plan.agreement_uuid
-            for block in home.blocks
-            for plan in block.plans
-            if plan.agreement_uuid
-        ]
+        agreement_uuids = [plan.agreement_uuid for block in home.blocks for plan in block.plans if plan.agreement_uuid]
 
         if not agreement_uuids:
-            return None
+            return
 
         async with self._agreements_repo() as repo:
-            country_uuids = await repo.get_countries_by_agreement_types(
-                agreement_uuids=agreement_uuids
-            )
+            country_uuids = await repo.get_countries_by_agreement_types(agreement_uuids=agreement_uuids)
 
         if len(country_uuids) > 1:
             raise DomainError("Все типы договоров в одном доме должны быть привязаны к одной стране")
@@ -93,7 +77,7 @@ class MetroStationInSameCitySpec(HomeSpecification):
 
     async def check(self, home: Home) -> None:
         if not home.metro_stations:
-            return None
+            return
 
         station_uuids = [s.station_uuid for s in home.metro_stations]
 
@@ -119,9 +103,7 @@ class PaymentTypesMatchCountrySpec(HomeSpecification):
             return True
 
         async with self._payments_repo() as repo:
-            country_uuids = await repo.get_countries_by_payment_types(
-                payment_uuids=home.payment_type_uuids
-            )
+            country_uuids = await repo.get_countries_by_payment_types(payment_uuids=home.payment_type_uuids)
 
         if not country_uuids or len(country_uuids) > 1:
             return False
@@ -132,12 +114,10 @@ class PaymentTypesMatchCountrySpec(HomeSpecification):
 
     async def check(self, home: Home) -> None:
         if not home.payment_type_uuids:
-            return None
+            return
 
         async with self._payments_repo() as repo:
-            country_uuids = await repo.get_countries_by_payment_types(
-                payment_uuids=home.payment_type_uuids
-            )
+            country_uuids = await repo.get_countries_by_payment_types(payment_uuids=home.payment_type_uuids)
 
         if not country_uuids:
             raise DomainError("Способы оплаты не найдены")

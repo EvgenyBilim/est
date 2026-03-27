@@ -1,7 +1,7 @@
 import asyncio
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 from functools import wraps
-from typing import Annotated, AsyncIterator, TypeAlias, TypeVar, cast
+from typing import Annotated, TypeAlias, TypeVar, cast
 
 from fastapi import Depends, FastAPI
 from pydantic_settings import BaseSettings

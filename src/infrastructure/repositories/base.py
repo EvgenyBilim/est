@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncConnection

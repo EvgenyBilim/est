@@ -25,13 +25,15 @@ class Create:
         for location in locations:
             location_uuid = uuid4()
 
-            result.append({
-                "uuid": location_uuid,
-                "parent_uuid": parent_uuid,
-                "name": location.name,
-                "alias": location.alias,
-                "type": location.type,
-            })
+            result.append(
+                {
+                    "uuid": location_uuid,
+                    "parent_uuid": parent_uuid,
+                    "name": location.name,
+                    "alias": location.alias,
+                    "type": location.type,
+                }
+            )
 
             if location.locations:
                 result.extend(self._flatten_locations(location.locations, parent_uuid=location_uuid))

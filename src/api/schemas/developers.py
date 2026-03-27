@@ -12,6 +12,7 @@ class DeveloperCreateSchema(BaseModel):
 
 # Response-модели
 
+
 class DeveloperModel(BaseModel):
     uuid: UUID
     name: str

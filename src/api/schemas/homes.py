@@ -144,6 +144,7 @@ class HomeCreateSchema(BaseModel):
 
 # Response-модели
 
+
 class MetroStationResponse(BaseModel):
     station_uuid: UUID
     station_name: str

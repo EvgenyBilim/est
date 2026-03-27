@@ -39,10 +39,7 @@ class GetCountriesByPaymentTypes(BaseDBEntity):
         if not payment_uuids:
             return []
 
-        query = (
-            select(distinct(PaymentType.location_uuid))
-            .where(PaymentType.uuid.in_(payment_uuids))
-        )
+        query = select(distinct(PaymentType.location_uuid)).where(PaymentType.uuid.in_(payment_uuids))
 
         result = await self._connection.execute(query)
         return list(result.scalars().all())

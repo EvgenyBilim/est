@@ -1,4 +1,2 @@
-
-
 class DomainError(BaseException):
     pass

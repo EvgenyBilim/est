@@ -1,5 +1,6 @@
 import contextlib
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 import orjson
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine

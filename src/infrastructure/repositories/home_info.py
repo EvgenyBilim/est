@@ -8,9 +8,7 @@ from src.infrastructure.repositories.base import BaseDBEntity
 
 class Sync(BaseDBEntity):
     async def __call__(self, home_info: HomeInfo) -> None:
-        await self._connection.execute(
-            delete(HomeInfoTable).where(HomeInfoTable.uuid == home_info.uuid)
-        )
+        await self._connection.execute(delete(HomeInfoTable).where(HomeInfoTable.uuid == home_info.uuid))
 
         home_info_data = {
             "uuid": home_info.uuid,
@@ -30,9 +28,7 @@ class Sync(BaseDBEntity):
             "plans_info": home_info.plans_info,
             "blocks_count": home_info.blocks_count,
         }
-        await self._connection.execute(
-            insert(HomeInfoTable).values(home_info_data)
-        )
+        await self._connection.execute(insert(HomeInfoTable).values(home_info_data))
 
 
 class HomeInfoRepository:

@@ -3,26 +3,6 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine, make_url
 
-from src.infrastructure.models import (
-    AgreementType,
-    Bank,
-    BankProgram,
-    BankProgramHome,
-    Block,
-    Developer,
-    Home,
-    HomeGallery,
-    HomeInfo,
-    HomeLocation,
-    HomeMetroStation,
-    HomePaymentType,
-    HomeTag,
-    Location,
-    MetroLine,
-    MetroStation,
-    PaymentType,
-    Plan,
-)
 from src.infrastructure.models.base import Base
 from src.settings import Settings
 

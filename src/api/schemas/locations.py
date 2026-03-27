@@ -15,6 +15,7 @@ class LocationCreateSchema(BaseModel):
 
 # Response-модели
 
+
 class LocationResponse(BaseModel):
     uuid: UUID
     parent_uuid: UUID | None

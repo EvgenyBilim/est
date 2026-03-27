@@ -43,9 +43,7 @@ class Home(BaseEstModel):
     coordinates = Column(JSONB, nullable=True, server_default=text("'[]'::jsonb"))
     sort_order = Column(Integer, nullable=True, index=True)
 
-    __table_args__ = (
-        Index("ix_homes_parking_types", parking_types, postgresql_using="gin"),
-    )
+    __table_args__ = (Index("ix_homes_parking_types", parking_types, postgresql_using="gin"),)
 
 
 class HomeInfo(BaseEstModel):
@@ -94,9 +92,7 @@ class Plan(BaseEstModel):
     uuid = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     block_uuid = Column(UUID(as_uuid=True), ForeignKey("blocks.uuid", ondelete="CASCADE"), index=True)
     rooms = Column(Enum(RoomTypeEnum), nullable=False, index=True)
-    agreement_uuid = Column(
-        UUID(as_uuid=True), ForeignKey("agreement_types.uuid", ondelete="RESTRICT"), nullable=True
-    )
+    agreement_uuid = Column(UUID(as_uuid=True), ForeignKey("agreement_types.uuid", ondelete="RESTRICT"), nullable=True)
     square_total = Column(Float, nullable=False, index=True)
     square_kitchen = Column(Float, nullable=False, index=True)
     trim = Column(Enum(TrimTypeEnum), nullable=False)
@@ -127,9 +123,7 @@ class HomeLocation(BaseEstModel):
     home_uuid = Column(UUID(as_uuid=True), ForeignKey("homes.uuid", ondelete="CASCADE"), index=True)
     location_uuid = Column(UUID(as_uuid=True), ForeignKey("locations.uuid", ondelete="RESTRICT"), index=True)
 
-    __table_args__ = (
-        PrimaryKeyConstraint("location_uuid", "home_uuid", name="pk_location_home"),
-    )
+    __table_args__ = (PrimaryKeyConstraint("location_uuid", "home_uuid", name="pk_location_home"),)
 
 
 class HomeMetroStation(BaseEstModel):
@@ -145,9 +139,7 @@ class HomeMetroStation(BaseEstModel):
 class HomePaymentType(BaseEstModel):
     __tablename__ = "home_payment_types"
 
-    home_uuid = Column(UUID(as_uuid=True), ForeignKey('homes.uuid', ondelete='CASCADE'), index=True)
-    payment_type_uuid = Column(UUID(as_uuid=True), ForeignKey('payment_types.uuid', ondelete='CASCADE'), index=True)
+    home_uuid = Column(UUID(as_uuid=True), ForeignKey("homes.uuid", ondelete="CASCADE"), index=True)
+    payment_type_uuid = Column(UUID(as_uuid=True), ForeignKey("payment_types.uuid", ondelete="CASCADE"), index=True)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('payment_type_uuid', 'home_uuid', name='pk_payment_type_home'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("payment_type_uuid", "home_uuid", name="pk_payment_type_home"),)

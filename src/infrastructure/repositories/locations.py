@@ -71,18 +71,15 @@ class GetLocationPath(LocationsRepositoryMixin):
 
         cte = base.union_all(recursive)
 
-        query = (
-            select(
-                cte.c.uuid,
-                cte.c.parent_uuid,
-                cte.c.name,
-                cte.c.alias,
-                cte.c.type,
-                cte.c.created_at,
-                cte.c.updated_at,
-            )
-            .order_by(cte.c.depth)
-        )
+        query = select(
+            cte.c.uuid,
+            cte.c.parent_uuid,
+            cte.c.name,
+            cte.c.alias,
+            cte.c.type,
+            cte.c.created_at,
+            cte.c.updated_at,
+        ).order_by(cte.c.depth)
 
         rows = await self._connection.execute(query)
         return [LocationResponse(**row) for row in rows.mappings()]

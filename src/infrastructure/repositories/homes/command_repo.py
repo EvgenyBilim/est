@@ -30,58 +30,53 @@ class HomeCommandRepository(BaseDBEntity):
         await self._sync_payment_types(home)
 
     async def delete(self, home_uuid: UUID) -> None:
-        await self._connection.execute(
-            delete(HomeTable).where(HomeTable.uuid == home_uuid)
-        )
+        await self._connection.execute(delete(HomeTable).where(HomeTable.uuid == home_uuid))
 
     async def _upsert_home(self, home: Home) -> None:
-        query = insert(HomeTable).values(
-            uuid=home.uuid,
-            name=home.name,
-            alias=home.alias,
-            developer_uuid=home.developer_uuid,
-            description=home.description,
-            housing_class=home.housing_class,
-            parking_types=home.parking_types,
-            is_apartment=home.is_apartment,
-            has_closed_territory=home.has_closed_territory,
-            has_security=home.has_security,
-            coordinates=home.coordinates,
-            sort_order=home.sort_order,
-        ).on_conflict_do_update(
-            index_elements=["uuid"],
-            set_={
-                "name": home.name,
-                "alias": home.alias,
-                "developer_uuid": home.developer_uuid,
-                "description": home.description,
-                "housing_class": home.housing_class,
-                "parking_types": home.parking_types,
-                "is_apartment": home.is_apartment,
-                "has_closed_territory": home.has_closed_territory,
-                "has_security": home.has_security,
-                "coordinates": home.coordinates,
-                "sort_order": home.sort_order,
-            }
+        query = (
+            insert(HomeTable)
+            .values(
+                uuid=home.uuid,
+                name=home.name,
+                alias=home.alias,
+                developer_uuid=home.developer_uuid,
+                description=home.description,
+                housing_class=home.housing_class,
+                parking_types=home.parking_types,
+                is_apartment=home.is_apartment,
+                has_closed_territory=home.has_closed_territory,
+                has_security=home.has_security,
+                coordinates=home.coordinates,
+                sort_order=home.sort_order,
+            )
+            .on_conflict_do_update(
+                index_elements=["uuid"],
+                set_={
+                    "name": home.name,
+                    "alias": home.alias,
+                    "developer_uuid": home.developer_uuid,
+                    "description": home.description,
+                    "housing_class": home.housing_class,
+                    "parking_types": home.parking_types,
+                    "is_apartment": home.is_apartment,
+                    "has_closed_territory": home.has_closed_territory,
+                    "has_security": home.has_security,
+                    "coordinates": home.coordinates,
+                    "sort_order": home.sort_order,
+                },
+            )
         )
         await self._connection.execute(query)
 
     # todo: проверить
     async def _sync_tags(self, home: Home) -> None:
-        await self._connection.execute(
-            delete(HomeTagTable).where(HomeTagTable.home_uuid == home.uuid)
-        )
+        await self._connection.execute(delete(HomeTagTable).where(HomeTagTable.home_uuid == home.uuid))
 
         if not home.tags:
-            return None
+            return
 
-        tags_data = [
-            {"home_uuid": home.uuid, "tag": tag}
-            for tag in home.tags
-        ]
-        await self._connection.execute(
-            insert(HomeTagTable).values(tags_data)
-        )
+        tags_data = [{"home_uuid": home.uuid, "tag": tag} for tag in home.tags]
+        await self._connection.execute(insert(HomeTagTable).values(tags_data))
 
     async def _sync_blocks(self, home: Home) -> None:
         current_block_uuids = [b.uuid for b in home.blocks]
@@ -92,7 +87,7 @@ class HomeCommandRepository(BaseDBEntity):
         await self._connection.execute(delete_query)
 
         if not home.blocks:
-            return None
+            return
 
         blocks_data = [
             {
@@ -123,21 +118,23 @@ class HomeCommandRepository(BaseDBEntity):
         for block in blocks:
             for plan in block.plans:
                 all_plan_uuids.append(plan.uuid)
-                all_plans_data.append({
-                    "uuid": plan.uuid,
-                    "block_uuid": plan.block_uuid,
-                    "rooms": plan.rooms,
-                    "agreement_uuid": plan.agreement_uuid,
-                    "square_total": plan.square_total,
-                    "square_kitchen": plan.square_kitchen,
-                    "trim": plan.trim,
-                    "bathroom_type": plan.bathroom_type,
-                    "roof_height": plan.roof_height,
-                    "price_base": plan.price_base,
-                    "price_discount": plan.price_discount,
-                    "floor": plan.floor,
-                    "img_path": plan.img_path,
-                })
+                all_plans_data.append(
+                    {
+                        "uuid": plan.uuid,
+                        "block_uuid": plan.block_uuid,
+                        "rooms": plan.rooms,
+                        "agreement_uuid": plan.agreement_uuid,
+                        "square_total": plan.square_total,
+                        "square_kitchen": plan.square_kitchen,
+                        "trim": plan.trim,
+                        "bathroom_type": plan.bathroom_type,
+                        "roof_height": plan.roof_height,
+                        "price_base": plan.price_base,
+                        "price_discount": plan.price_discount,
+                        "floor": plan.floor,
+                        "img_path": plan.img_path,
+                    }
+                )
 
         delete_query = delete(PlanTable).where(PlanTable.block_uuid.in_(block_uuids))
         if all_plan_uuids:
@@ -145,16 +142,25 @@ class HomeCommandRepository(BaseDBEntity):
         await self._connection.execute(delete_query)
 
         if not all_plans_data:
-            return None
+            return
 
         await self._batch_upsert(
             PlanTable,
             all_plans_data,
             index_elements=["uuid"],
             update_fields=[
-                "block_uuid", "rooms", "agreement_uuid", "square_total",
-                "square_kitchen", "trim", "bathroom_type", "roof_height",
-                "price_base", "price_discount", "floor", "img_path",
+                "block_uuid",
+                "rooms",
+                "agreement_uuid",
+                "square_total",
+                "square_kitchen",
+                "trim",
+                "bathroom_type",
+                "roof_height",
+                "price_base",
+                "price_discount",
+                "floor",
+                "img_path",
             ],
         )
 
@@ -167,7 +173,7 @@ class HomeCommandRepository(BaseDBEntity):
         await self._connection.execute(delete_query)
 
         if not home.gallery:
-            return None
+            return
 
         gallery_data = [
             {
@@ -188,20 +194,13 @@ class HomeCommandRepository(BaseDBEntity):
 
     async def _sync_locations(self, home: Home) -> None:
         if not home.location_uuids:
-            return None
+            return
 
         # Тут важно удалить все старые локации и добавить новые целиком, т.к. у них каскадная связь
-        await self._connection.execute(
-            delete(HomeLocationTable).where(HomeLocationTable.home_uuid == home.uuid)
-        )
+        await self._connection.execute(delete(HomeLocationTable).where(HomeLocationTable.home_uuid == home.uuid))
 
-        locations_data = [
-            {"home_uuid": home.uuid, "location_uuid": loc_uuid}
-            for loc_uuid in home.location_uuids
-        ]
-        await self._connection.execute(
-            insert(HomeLocationTable).values(locations_data)
-        )
+        locations_data = [{"home_uuid": home.uuid, "location_uuid": loc_uuid} for loc_uuid in home.location_uuids]
+        await self._connection.execute(insert(HomeLocationTable).values(locations_data))
 
     async def _sync_metro_stations(self, home: Home) -> None:
         current_metro_uuids = [m.uuid for m in home.metro_stations]
@@ -212,7 +211,7 @@ class HomeCommandRepository(BaseDBEntity):
         await self._connection.execute(delete_query)
 
         if not home.metro_stations:
-            return None
+            return
 
         metro_data = [
             {
@@ -232,20 +231,13 @@ class HomeCommandRepository(BaseDBEntity):
         )
 
     async def _sync_payment_types(self, home: Home) -> None:
-        await self._connection.execute(
-            delete(HomePaymentTypeTable).where(HomePaymentTypeTable.home_uuid == home.uuid)
-        )
+        await self._connection.execute(delete(HomePaymentTypeTable).where(HomePaymentTypeTable.home_uuid == home.uuid))
 
         if not home.payment_type_uuids:
-            return None
+            return
 
-        payment_data = [
-            {"home_uuid": home.uuid, "payment_type_uuid": pt_uuid}
-            for pt_uuid in home.payment_type_uuids
-        ]
-        await self._connection.execute(
-            insert(HomePaymentTypeTable).values(payment_data)
-        )
+        payment_data = [{"home_uuid": home.uuid, "payment_type_uuid": pt_uuid} for pt_uuid in home.payment_type_uuids]
+        await self._connection.execute(insert(HomePaymentTypeTable).values(payment_data))
 
     async def _batch_upsert(
         self,
@@ -266,17 +258,13 @@ class HomeCommandRepository(BaseDBEntity):
 
     async def get_by_uuid(self, home_uuid: UUID) -> Home | None:
         # 1. Дом
-        home_result = await self._connection.execute(
-            select(HomeTable).where(HomeTable.uuid == home_uuid)
-        )
+        home_result = await self._connection.execute(select(HomeTable).where(HomeTable.uuid == home_uuid))
         home_row = home_result.mappings().first()
         if not home_row:
             return None
 
         # 2. Корпуса
-        blocks_result = await self._connection.execute(
-            select(BlockTable).where(BlockTable.home_uuid == home_uuid)
-        )
+        blocks_result = await self._connection.execute(select(BlockTable).where(BlockTable.home_uuid == home_uuid))
         blocks_rows = blocks_result.mappings().all()
         block_uuids = [b["uuid"] for b in blocks_rows]
 
