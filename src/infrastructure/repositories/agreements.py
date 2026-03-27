@@ -3,9 +3,9 @@ from uuid import UUID
 from sqlalchemy import distinct, select
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from src.api.schemas.agreements import AgreementTypeModel
 from src.infrastructure.models.contracts import AgreementType
 from src.infrastructure.repositories.base import BaseDBEntity
-from src.api.schemas.agreements import AgreementTypeModel
 
 
 class Create(BaseDBEntity):

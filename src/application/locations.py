@@ -1,11 +1,10 @@
 from typing import Any
 from uuid import UUID, uuid4
 
-from src.api.schemas.locations import LocationCreateSchema
+from src.api.schemas.locations import LocationCreateSchema, LocationResponse
 from src.enums import LocationTypeEnum
 from src.infrastructure.components.repository import AcquireTxRepository
 from src.infrastructure.repositories.locations import LocationsRepository
-from src.api.schemas.locations import LocationResponse
 
 
 class Create:

@@ -6,8 +6,7 @@ T = TypeVar("T")
 
 
 class EventHandler(Protocol[T]):
-    async def handle(self, event: T) -> None:
-        ...
+    async def handle(self, event: T) -> None: ...
 
 
 class HomeCreatedHandler(EventHandler[HomeCreated]):

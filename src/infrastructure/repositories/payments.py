@@ -3,9 +3,9 @@ from uuid import UUID
 from sqlalchemy import distinct, select
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from src.api.schemas.payments import PaymentTypeModel
 from src.infrastructure.models.contracts import PaymentType
 from src.infrastructure.repositories.base import BaseDBEntity
-from src.api.schemas.payments import PaymentTypeModel
 
 
 class Create(BaseDBEntity):

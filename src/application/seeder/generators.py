@@ -1,13 +1,13 @@
 import random
 import re
 import string
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from uuid import UUID
 
 from src.api.schemas.agreements import AgreementTypeCreateSchema, AgreementTypeModel
 from src.api.schemas.developers import DeveloperCreateSchema
-from src.api.schemas.locations import LocationCreateSchema
+from src.api.schemas.locations import LocationCreateSchema, LocationResponse
 from src.api.schemas.metro import (
     MetroLineCreateSchema,
     MetropolitanCreateSchema,
@@ -23,8 +23,8 @@ from src.application.home.commands import (
 )
 from src.application.seeder.const import NAMES_ONE, NAMES_TWO, TRANSLIT_MAP
 from src.enums import (
-    BaseStrEnum,
     BaseIntEnum,
+    BaseStrEnum,
     BathroomTypeEnum,
     GalleryImageTypeEnum,
     HousingClassEnum,
@@ -35,7 +35,6 @@ from src.enums import (
     TrimTypeEnum,
     WallTypeEnum,
 )
-from src.api.schemas.locations import LocationResponse
 
 
 def random_string(length: int = 20) -> str:
@@ -74,10 +73,10 @@ def random_home_name(names_one: list[str], names_two: list[str]) -> str:
 
 def name_to_alias(translit_map: dict[str, str], name: str) -> str:
     text = name.lower().strip()
-    result = ''
+    result = ""
     for char in text:
-        if char == ' ':
-            result += '_'
+        if char == " ":
+            result += "_"
         elif char in translit_map:
             result += translit_map[char]
 
@@ -124,10 +123,10 @@ def generate_agreements(countries: list[LocationResponse], agreements: list[str]
 
 def generate_payments(countries: list[LocationResponse], payments: list[str]) -> list[PaymentTypeCreateSchema]:
     return [
-            PaymentTypeCreateSchema(name=payment, location_uuid=country.uuid)
-            for payment in payments
-            for country in countries
-        ]
+        PaymentTypeCreateSchema(name=payment, location_uuid=country.uuid)
+        for payment in payments
+        for country in countries
+    ]
 
 
 def generate_developers(count: int = 400) -> list[DeveloperCreateSchema]:

@@ -10,13 +10,13 @@ from src.infrastructure.models import (
     BankProgramHome,
     Block,
     Developer,
-    HomeGallery,
     Home,
+    HomeGallery,
     HomeInfo,
-    HomeTag,
     HomeLocation,
     HomeMetroStation,
     HomePaymentType,
+    HomeTag,
     Location,
     MetroLine,
     MetroStation,
@@ -38,9 +38,11 @@ if config.config_file_name is not None:
 if config.cmd_opts is not None and hasattr(config.cmd_opts, "pg_url"):
     URL = config.cmd_opts.pg_url
 else:
+
     class DbSettings(Settings):
         class Config:
             env_file = "local.env"
+
     URL = make_url(str(DbSettings().postgres_dsn)).set(drivername="postgresql+psycopg")
 
 
@@ -61,9 +63,7 @@ def run_migrations_online() -> None:
     connectable = create_engine(URL)
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

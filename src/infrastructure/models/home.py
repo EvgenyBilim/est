@@ -16,13 +16,13 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 
 from src.enums import (
-    RoomTypeEnum,
-    TrimTypeEnum,
-    WallTypeEnum,
     BathroomTypeEnum,
     HousingClassEnum,
     ParkingTypeEnum,
+    RoomTypeEnum,
     TransportTypeEnum,
+    TrimTypeEnum,
+    WallTypeEnum,
 )
 from src.infrastructure.models.base import BaseEstModel
 

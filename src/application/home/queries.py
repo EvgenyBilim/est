@@ -3,9 +3,17 @@ from datetime import date
 from decimal import Decimal
 from typing import Annotated
 from uuid import UUID
-from fastapi import Query, HTTPException, Depends
 
-from src.enums import HousingClassEnum, ParkingTypeEnum, WallTypeEnum, TrimTypeEnum, BathroomTypeEnum, RoomTypeEnum
+from fastapi import Depends, HTTPException, Query
+
+from src.enums import (
+    BathroomTypeEnum,
+    HousingClassEnum,
+    ParkingTypeEnum,
+    RoomTypeEnum,
+    TrimTypeEnum,
+    WallTypeEnum,
+)
 
 
 @dataclass

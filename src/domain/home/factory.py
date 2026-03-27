@@ -216,7 +216,7 @@ class HomeFactory:
             else:
                 self._create_plan(home, block_uuid, plan_data)
 
-    def _update_plan( self, home: Home, block_uuid: UUID, data: PlanSyncData) -> None:
+    def _update_plan(self, home: Home, block_uuid: UUID, data: PlanSyncData) -> None:
         home.update_plan(
             block_uuid=block_uuid,
             plan_uuid=data.uuid,

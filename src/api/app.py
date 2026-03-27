@@ -3,11 +3,11 @@ from fastapi import APIRouter, FastAPI
 
 from src.api.routes.v1 import (
     agreement_router,
-    payments_router,
     developers_router,
     homes_router,
     locations_router,
     metro_router,
+    payments_router,
     seeder_router,
 )
 from src.infrastructure.components.base import StateManager
@@ -38,5 +38,5 @@ def main():
     uvicorn.run(app, host="0.0.0.0", port=settings.port)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,12 +1,18 @@
 from __future__ import annotations
 
-from uuid import UUID
-
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
+from uuid import UUID
 
-from src.enums import LocationTypeEnum, RoomTypeEnum, TransportTypeEnum, BathroomTypeEnum, TrimTypeEnum, WallTypeEnum
+from src.enums import (
+    BathroomTypeEnum,
+    LocationTypeEnum,
+    RoomTypeEnum,
+    TransportTypeEnum,
+    TrimTypeEnum,
+    WallTypeEnum,
+)
 
 
 @dataclass

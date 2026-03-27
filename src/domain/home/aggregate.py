@@ -134,7 +134,7 @@ class Home:
         address: str | None,
         floors: int,
         wall_type: WallTypeEnum,
-        delivery_date: date
+        delivery_date: date,
     ) -> Block:
         block = self._get_block(block_uuid)
         block.name = name
@@ -228,7 +228,7 @@ class Home:
             home_uuid=self.uuid,
             image_type=image_type,
             image_path=image_path,
-            sort_order=sort_order
+            sort_order=sort_order,
         )
         self.gallery.append(gallery_image)
 

@@ -14,7 +14,6 @@ from src.enums import (
     WallTypeEnum,
 )
 
-
 # Данные для синхронизации
 
 @dataclass(frozen=True)

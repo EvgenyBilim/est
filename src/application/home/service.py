@@ -1,13 +1,13 @@
 from uuid import UUID
 
-from src.api.schemas.homes import HomeResponse, HomePreviewResponse, HomeNameResponse
-from src.application.home.home_info_service import HomeInfoService
+from src.api.schemas.homes import HomeNameResponse, HomePreviewResponse, HomeResponse
 from src.application.home.commands import (
     AddBlocksCommand,
     AddPlansCommand,
     HomeCreateCommand,
     SyncHomeCommand,
 )
+from src.application.home.home_info_service import HomeInfoService
 from src.application.home.queries import HomeSearchFilter, HomeTagFilter
 from src.domain.home.factory import HomeFactory
 from src.errors import NotFoundError

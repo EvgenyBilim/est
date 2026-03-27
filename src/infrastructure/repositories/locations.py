@@ -3,10 +3,10 @@ from uuid import UUID
 from sqlalchemy import literal_column, select
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from src.api.schemas.locations import LocationResponse
 from src.enums import LocationTypeEnum
 from src.infrastructure.models.location import Location
 from src.infrastructure.repositories.base import BaseDBEntity
-from src.api.schemas.locations import LocationResponse
 
 
 class LocationsRepositoryMixin(BaseDBEntity):

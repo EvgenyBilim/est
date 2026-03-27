@@ -2,8 +2,17 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from src.api.schemas.homes import HomeCreateSchema, HomeResponse, HomePreviewResponse, HomeNameResponse
-from src.application.home.queries import HomeSearchFilter, HomeTagFilter, validate_filters
+from src.api.schemas.homes import (
+    HomeCreateSchema,
+    HomeNameResponse,
+    HomePreviewResponse,
+    HomeResponse,
+)
+from src.application.home.queries import (
+    HomeSearchFilter,
+    HomeTagFilter,
+    validate_filters,
+)
 from src.application.home.service import HomesService
 from src.dependencies import homes_service_dependency
 

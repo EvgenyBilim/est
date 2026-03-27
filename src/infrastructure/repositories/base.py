@@ -10,6 +10,6 @@ class BaseDBEntity(ABC):
 
     async def batch_insert(self, table, data: list[dict], batch_size: int = 1000) -> None:
         for i in range(0, len(data), batch_size):
-            batch = data[i:i + batch_size]
+            batch = data[i : i + batch_size]
             query = insert(table).values(batch)
             await self._connection.execute(query)

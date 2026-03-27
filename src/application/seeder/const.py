@@ -1,5 +1,3 @@
-
-
 SEED_LOCATIONS = [
     {
         "name": "Россия",
@@ -10,8 +8,8 @@ SEED_LOCATIONS = [
             {"name": "Санкт-Петербург", "alias": "saint-petersburg", "type": "city"},
             {"name": "Новосибирск", "alias": "novosibirsk", "type": "city"},
             {"name": "Екатеринбург", "alias": "ekaterinburg", "type": "city"},
-            {"name": "Казань", "alias": "kazan", "type": "city"}
-        ]
+            {"name": "Казань", "alias": "kazan", "type": "city"},
+        ],
     },
     {
         "name": "США",
@@ -20,25 +18,21 @@ SEED_LOCATIONS = [
         "locations": [
             {"name": "New-York", "alias": "new-york", "type": "city"},
             {"name": "Los-Angeles", "alias": "los-angeles", "type": "city"},
-            {"name": "Miami", "alias": "miami", "type": "city"}
-        ]
+            {"name": "Miami", "alias": "miami", "type": "city"},
+        ],
     },
     {
         "name": "Германия",
         "alias": "germany",
         "type": "country",
-        "locations": [
-            {"name": "Berlin", "alias": "berlin", "type": "city"}
-        ]
+        "locations": [{"name": "Berlin", "alias": "berlin", "type": "city"}],
     },
     {
         "name": "Япония",
         "alias": "japan",
         "type": "country",
-        "locations": [
-            {"name": "Токио", "alias": "tokyo", "type": "city"}
-        ]
-    }
+        "locations": [{"name": "Токио", "alias": "tokyo", "type": "city"}],
+    },
 ]
 
 

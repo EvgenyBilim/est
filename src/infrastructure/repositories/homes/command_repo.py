@@ -5,15 +5,15 @@ from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 
 from src.domain.home.aggregate import Home
-from src.domain.home.entities import Block, Plan, GalleryImage, MetroStation
+from src.domain.home.entities import Block, GalleryImage, MetroStation, Plan
 from src.infrastructure.models import (
     Block as BlockTable,
-    HomeGallery as HomeGalleryTable,
     Home as HomeTable,
-    HomeTag as HomeTagTable,
+    HomeGallery as HomeGalleryTable,
     HomeLocation as HomeLocationTable,
     HomeMetroStation as HomeMetroStationTable,
     HomePaymentType as HomePaymentTypeTable,
+    HomeTag as HomeTagTable,
     Plan as PlanTable,
 )
 from src.infrastructure.repositories.base import BaseDBEntity
@@ -256,7 +256,7 @@ class HomeCommandRepository(BaseDBEntity):
         batch_size: int = 1000,
     ) -> None:
         for i in range(0, len(data), batch_size):
-            batch = data[i:i + batch_size]
+            batch = data[i : i + batch_size]
             stmt = insert(table).values(batch)
             stmt = stmt.on_conflict_do_update(
                 index_elements=index_elements,

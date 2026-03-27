@@ -1,9 +1,9 @@
 from sqlalchemy import delete, insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from src.domain.home.value_objects import HomeInfo
 from src.infrastructure.models.home import HomeInfo as HomeInfoTable
 from src.infrastructure.repositories.base import BaseDBEntity
-from src.domain.home.value_objects import HomeInfo
 
 
 class Sync(BaseDBEntity):

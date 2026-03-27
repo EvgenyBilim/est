@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Self
 from datetime import date
 from decimal import Decimal
+from typing import Any, Self
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -195,7 +195,7 @@ class StatsByRoomsResponse(BaseModel):
                     max_square=stats["max_square"],
                 )
                 for room_type, stats in rooms_stats.items()
-            }
+            },
         )
 
 

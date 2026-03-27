@@ -6,10 +6,10 @@ from .home import (
     Block,
     Home,
     HomeInfo,
-    HomeTag,
     HomeLocation,
     HomeMetroStation,
     HomePaymentType,
+    HomeTag,
     Plan,
 )
 from .location import Location

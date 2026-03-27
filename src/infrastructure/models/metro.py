@@ -13,7 +13,7 @@ class Metropolitan(BaseEstModel):
 
 
 class MetroLine(BaseEstModel):
-    __tablename__ = 'metro_lines'
+    __tablename__ = "metro_lines"
 
     uuid = Column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
     metropolitan_uuid = Column(UUID(as_uuid=True), ForeignKey('metropolitans.uuid', ondelete='CASCADE'), index=True)
