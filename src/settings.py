@@ -12,6 +12,9 @@ class SqlAlchemySettings(BaseModel):
 
     pg_connection_timeout: int = 5
 
+    class Config:
+        env_file = "local.env"
+
 
 class Settings(BaseSettings, SqlAlchemySettings):
     port: PositiveInt = 8000
