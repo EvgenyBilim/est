@@ -38,8 +38,7 @@ class CreateWithStructure:
                 )
 
                 stations_data.extend(
-                    {"uuid": uuid4(), "metro_line_uuid": line_uuid, "name": station.name}
-                    for station in line.stations
+                    {"uuid": uuid4(), "metro_line_uuid": line_uuid, "name": station.name} for station in line.stations
                 )
 
         async with self._metro_repo() as repo:
