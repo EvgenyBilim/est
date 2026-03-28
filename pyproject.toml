@@ -39,7 +39,11 @@ line-length = 120
 exclude = ["src/application/seeder/const.py"]
 
 [tool.ruff.lint]
-select = ["I"]
+select = ["E", "F"]
+#select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "ASYNC", "S", "B", "C4", "DTZ", "T10", "ISC", "ICN",
+#    "PIE", "T20", "PT", "Q", "RET", "SLF", "SIM", "ERA", "PLE", "TRY", "PYI", "PERF", "LOG", "RUF008",
+#    "RUF009", "RUF012", "RUF013", "RUF015", "RUF019", "RUF100", "RUF200"
+#]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S", "C4", "ISC", "SLF", "RUF012"]

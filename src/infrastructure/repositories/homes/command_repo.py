@@ -6,16 +6,16 @@ from sqlalchemy.dialects.postgresql import insert
 
 from src.domain.home.aggregate import Home
 from src.domain.home.entities import Block, GalleryImage, MetroStation, Plan
-from src.infrastructure.models import (
+from src.infrastructure.models.home import (
     Block as BlockTable,
     Home as HomeTable,
-    HomeGallery as HomeGalleryTable,
     HomeLocation as HomeLocationTable,
     HomeMetroStation as HomeMetroStationTable,
     HomePaymentType as HomePaymentTypeTable,
     HomeTag as HomeTagTable,
     Plan as PlanTable,
 )
+from src.infrastructure.models.gallery import HomeGallery as HomeGalleryTable
 from src.infrastructure.repositories.base import BaseDBEntity
 
 
