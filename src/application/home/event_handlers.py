@@ -2,7 +2,7 @@ from typing import Protocol, TypeVar
 
 from src.domain.home.events import HomeCreated, HomeStructureChanged
 
-T = TypeVar("T")
+T = TypeVar("T", contravariant=True)
 
 
 class EventHandler(Protocol[T]):

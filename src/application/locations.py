@@ -65,7 +65,7 @@ class GetLocationPath:
 
     async def __call__(self, location_uuid: UUID) -> list[LocationResponse]:
         async with self._locations_repo() as repo:
-            return await repo.get_parents(location_uuid=location_uuid)
+            return await repo.get_location_path(location_uuid=location_uuid)
 
 
 class LocationsService:

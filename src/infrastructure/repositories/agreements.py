@@ -1,3 +1,4 @@
+from typing import cast
 from uuid import UUID
 
 from sqlalchemy import distinct, select
@@ -35,7 +36,7 @@ class GetCountriesByAgreementTypes(BaseDBEntity):
         query = select(distinct(AgreementType.location_uuid)).where(AgreementType.uuid.in_(agreement_uuids))
 
         result = await self._connection.execute(query)
-        return list(result.scalars().all())
+        return [cast(UUID, uuid) for uuid in result.scalars().all() if uuid is not None]
 
 
 class GetByUUIDs(BaseDBEntity):

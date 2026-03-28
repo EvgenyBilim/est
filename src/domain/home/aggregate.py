@@ -57,7 +57,7 @@ class Home:
         is_apartment: bool | None,
         has_closed_territory: bool | None,
         has_security: bool | None,
-        tags: list[str] | None,
+        tags: list[str],
         sort_order: int | None,
     ) -> Self:
         home = cls(
@@ -94,7 +94,7 @@ class Home:
         is_apartment: bool | None,
         has_closed_territory: bool | None,
         has_security: bool | None,
-        tags: list[str] | None,
+        tags: list[str],
         sort_order: int | None,
     ) -> None:
         self.name = name
@@ -114,7 +114,9 @@ class Home:
 
     # ==== Операции с корпусами ====
 
-    def add_block(self, name: str, address: str, floors: int, wall_type: WallTypeEnum, delivery_date: date) -> Block:
+    def add_block(
+        self, name: str, address: str | None, floors: int, wall_type: WallTypeEnum, delivery_date: date
+    ) -> Block:
         block = Block(
             uuid=uuid4(),
             home_uuid=self.uuid,

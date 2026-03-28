@@ -136,15 +136,15 @@ def generate_developers(count: int = 400) -> list[DeveloperCreateSchema]:
     ]
 
 
-def build_districts_hierarchy(locations: list[LocationResponse]) -> dict[UUID, dict[str, UUID]]:
+def build_districts_hierarchy(locations: list[LocationResponse]) -> dict[UUID, dict[str, UUID | None]]:
     locations_by_uuid = {loc.uuid: loc for loc in locations}
 
-    districts = {}
+    districts: dict[UUID, dict[str, UUID | None]] = {}
 
     for loc in locations:
         if loc.type == LocationTypeEnum.DISTRICT:
             city_uuid = loc.parent_uuid
-            city = locations_by_uuid.get(city_uuid)
+            city = locations_by_uuid.get(city_uuid) if city_uuid is not None else None
             country_uuid = city.parent_uuid if city else None
 
             districts[loc.uuid] = {

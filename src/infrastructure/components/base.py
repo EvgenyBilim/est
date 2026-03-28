@@ -1,5 +1,6 @@
 import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
 from functools import wraps
 from typing import Annotated, TypeAlias, TypeVar, cast
 
@@ -93,6 +94,7 @@ class StateManager:
     async def register_shutdown_hook(self, hook_id: str, hook: Callable[[], Awaitable[object]]) -> None:
         self._shutdown_hooks[hook_id] = hook
 
+    @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncIterator[dict[str, object]]:
         await self.startup()
         try:

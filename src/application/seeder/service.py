@@ -54,9 +54,9 @@ class DatabaseSeeder:
 
         locations_by_uuid = build_districts_hierarchy(locations=await self._location_service.get())
         agreements_by_country = build_contracts_by_location(
-            contracts=await self._agreements_service.get(),
+            contracts=await self._agreements_service.get(),  # type: ignore[arg-type]
         )
-        payments_by_country = build_contracts_by_location(contracts=await self._payments_service.get())
+        payments_by_country = build_contracts_by_location(contracts=await self._payments_service.get())  # type: ignore[arg-type]
         metro_stations_by_city = {
             city.uuid: await self._metro_service.get_stations_by_city(city_uuid=city.uuid) for city in cities
         }

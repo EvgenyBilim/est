@@ -1,3 +1,4 @@
+from typing import cast
 from uuid import UUID
 
 from sqlalchemy import distinct, select
@@ -42,7 +43,7 @@ class GetCountriesByPaymentTypes(BaseDBEntity):
         query = select(distinct(PaymentType.location_uuid)).where(PaymentType.uuid.in_(payment_uuids))
 
         result = await self._connection.execute(query)
-        return list(result.scalars().all())
+        return [cast(UUID, uuid) for uuid in result.scalars().all() if uuid is not None]
 
 
 class PaymentsRepository:
