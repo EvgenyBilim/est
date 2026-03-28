@@ -21,7 +21,7 @@ async def get_state(request: Request) -> State:
 STATE: TypeAlias = Annotated[State, Depends(get_state)]
 
 
-def get_from_state(name: str, dep_type: type[T], state: State) -> T:
+def get_from_state[T](name: str, dep_type: type[T], state: State) -> T:
     try:
         val = getattr(state, name)
     except AttributeError as exc:
@@ -101,21 +101,3 @@ class StateManager:
             yield self.state
         finally:
             await self.shutdown()
-
-
-# class LifespanDeps(ABC):
-#     DEPS_ID: str
-#
-#     @abstractmethod
-#     async def _startup(self):
-#         raise NotImplemented
-#
-#     @abstractmethod
-#     async def _shutdown(self):
-#         raise NotImplemented
-#
-#     async def __call__(self, state: State) -> T:
-#         payload = await self._startup()
-#         state_manager = get_from_state(StateManager.STATE_NAME, StateManager, state)
-#         await state_manager.register_shutdown_hook(self.DEPS_ID, self._shutdown)
-#         return payload

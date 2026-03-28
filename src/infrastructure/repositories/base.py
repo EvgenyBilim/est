@@ -1,10 +1,8 @@
-from abc import ABC
-
 from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 
-class BaseDBEntity(ABC):
+class BaseDBEntity:
     def __init__(self, connection: AsyncConnection):
         self._connection = connection
 

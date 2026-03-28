@@ -92,15 +92,7 @@ class HomesService:
 
     async def get_by_uuid(self, home_uuid: UUID) -> HomeResponse | None:
         """Получение дома по UUID"""
-
-        # async with self._home_query_repo() as repo:
-        #     return await repo.get_by_uuid(home_uuid)
-
-        # cache_key = f"home:{home_uuid}"
-        # cached = await self._cache.get(cache_key)
-        # if cached:
-        #     return HomeResponse.model_validate_json(cached)
-        # await self._cache.set(cache_key, home.model_dump_json(), ttl=3600)
+        # todo: Получать из кэша. Если кэша нет, получать из бд и писать в кэш
 
         async with self._home_query_repo() as repo:
             return await repo.get_by_uuid(home_uuid)

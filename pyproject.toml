@@ -6,6 +6,7 @@ authors = [
     {name = "Evgeny Bilim",email = "evgenybilim@gmail.com"}
 ]
 readme = "README.md"
+
 requires-python = ">=3.12"
 dependencies = [
     "alembic (>=1.14.0,<2.0.0)",
@@ -26,7 +27,6 @@ package-mode = false
 pre-commit = "^4.5.1"
 ruff = ">=0.14.11,<0.15.0"
 mypy = ">=1.19.1,<2.0.0"
-isort = ">=5.13.2,<6.0.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -39,15 +39,22 @@ line-length = 120
 exclude = ["src/application/seeder/const.py"]
 
 [tool.ruff.lint]
-select = ["E", "F"]
-#select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "ASYNC", "S", "B", "C4", "DTZ", "T10", "ISC", "ICN",
-#    "PIE", "T20", "PT", "Q", "RET", "SLF", "SIM", "ERA", "PLE", "TRY", "PYI", "PERF", "LOG", "RUF008",
-#    "RUF009", "RUF012", "RUF013", "RUF015", "RUF019", "RUF100", "RUF200"
-#]
+select = [
+    "E", "F", "C90", "I", "N", "UP", "YTT", "ASYNC", "S", "B", "C4", "DTZ", "T10", "ISC", "ICN",
+    "PIE", "T20", "PT", "Q", "RET", "SLF", "SIM", "ERA", "PLE", "TRY", "PYI", "PERF", "LOG", "RUF008",
+    "RUF009", "RUF012", "RUF013", "RUF015", "RUF019", "RUF100", "RUF200",
+]
+unfixable = ["ERA"]
+ignore = ["UP040", "TRY003", "ISC001"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 50
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S", "C4", "ISC", "SLF", "RUF012"]
 "src/*" = ["PT"]
+"src/application/seeder/*" = ["S"]
+"src/api/app.py" = ["S104"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src"]

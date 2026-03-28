@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from src.domain.home.aggregate import Home
 from src.domain.home.entities import Block, GalleryImage, MetroStation, Plan
+from src.infrastructure.models.gallery import HomeGallery as HomeGalleryTable
 from src.infrastructure.models.home import (
     Block as BlockTable,
     Home as HomeTable,
@@ -15,7 +16,6 @@ from src.infrastructure.models.home import (
     HomeTag as HomeTagTable,
     Plan as PlanTable,
 )
-from src.infrastructure.models.gallery import HomeGallery as HomeGalleryTable
 from src.infrastructure.repositories.base import BaseDBEntity
 
 
@@ -68,7 +68,7 @@ class HomeCommandRepository(BaseDBEntity):
         )
         await self._connection.execute(query)
 
-    # todo: проверить
+    # todo: проверить, что работает
     async def _sync_tags(self, home: Home) -> None:
         await self._connection.execute(delete(HomeTagTable).where(HomeTagTable.home_uuid == home.uuid))
 

@@ -19,6 +19,9 @@ from src.api.schemas.homes import (
 )
 from src.application.home.queries import HomeSearchFilter, HomeTagFilter
 from src.enums import GalleryImageTypeEnum
+from src.infrastructure.models.contracts import AgreementType as AgreementTypeTable
+from src.infrastructure.models.developer import Developer as DeveloperTable
+from src.infrastructure.models.gallery import HomeGallery as HomeGalleryTable
 from src.infrastructure.models.home import (
     Block as BlockTable,
     Home as HomeTable,
@@ -28,9 +31,6 @@ from src.infrastructure.models.home import (
     HomeTag as HomeTagTable,
     Plan as PlanTable,
 )
-from src.infrastructure.models.developer import Developer as DeveloperTable
-from src.infrastructure.models.contracts import AgreementType as AgreementTypeTable
-from src.infrastructure.models.gallery import HomeGallery as HomeGalleryTable
 from src.infrastructure.repositories.base import BaseDBEntity
 
 

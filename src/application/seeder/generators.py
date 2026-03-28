@@ -222,50 +222,8 @@ def generate_create_home_commands(developers_uuids, districts, agreements, payme
                         )
                         for _ in range(random.randint(20, 200))
                     ],
-                    # plans=[
-                    #     PlanCreateData(
-                    #         rooms=RoomTypeEnum.ONE,
-                    #         agreement_uuid=agreements[districts[district_uuid]["country_uuid"]][0],
-                    #         square_total=Decimal("32.1"),
-                    #         square_kitchen=Decimal("8.2"),
-                    #         trim=TrimTypeEnum.NO_TRIM,
-                    #         bathroom_type=BathroomTypeEnum.UNIFIED,
-                    #         roof_height=Decimal("2.8"),
-                    #         price_base=8_200_000,
-                    #         price_discount=7_900_000,
-                    #         floor=10,
-                    #         img_path="url",
-                    #     ),
-                    #     PlanCreateData(
-                    #         rooms=RoomTypeEnum.ONE,
-                    #         agreement_uuid=agreements[districts[district_uuid]["country_uuid"]][0],
-                    #         square_total=Decimal("32.1"),
-                    #         square_kitchen=Decimal("8.2"),
-                    #         trim=TrimTypeEnum.NO_TRIM,
-                    #         bathroom_type=BathroomTypeEnum.UNIFIED,
-                    #         roof_height=Decimal("2.8"),
-                    #         price_base=8_200_000,
-                    #         price_discount=7_900_000,
-                    #         floor=12,
-                    #         img_path="url",
-                    #     ),
-                    #     PlanCreateData(
-                    #         rooms=random_enum_value(RoomTypeEnum),
-                    #         agreement_uuid=agreements[districts[district_uuid]["country_uuid"]][random.randint(0, 2)],
-                    #         square_total=Decimal("34.5"),
-                    #         square_kitchen=Decimal("12.1"),
-                    #         trim=random_enum_value(TrimTypeEnum),
-                    #         bathroom_type=random_enum_value(BathroomTypeEnum),
-                    #         roof_height=Decimal("2.8"),
-                    #         price_base=8_400_000,
-                    #         price_discount=8_300_000,
-                    #         floor=14,
-                    #         img_path="url",
-                    #     )
-                    # ],
                 )
                 for _ in range(random.randint(1, 10))
-                # for _ in range(2)
             ],
             gallery=[
                 GalleryImageCreateData(

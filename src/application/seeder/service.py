@@ -68,5 +68,5 @@ class DatabaseSeeder:
             payments=payments_by_country,
             metro=metro_stations_by_city,
         )
-        # create_home_commands = create_home_commands[:1]  # todo: delete
+        create_home_commands = create_home_commands[:1]  # todo: delete
         await self._homes_service.create_homes(commands=create_home_commands)

@@ -156,7 +156,7 @@ class HomeFactory:
             )
 
     def _add_plan(self, home: Home, block_uuid: UUID, data: PlanCreateData) -> Plan:
-        plan = home.add_plan_to_block(
+        return home.add_plan_to_block(
             block_uuid=block_uuid,
             rooms=data.rooms,
             agreement_uuid=data.agreement_uuid,
@@ -170,7 +170,6 @@ class HomeFactory:
             floor=data.floor,
             img_path=data.img_path,
         )
-        return plan
 
     # ==== Синхронизация ====
 

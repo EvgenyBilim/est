@@ -235,7 +235,7 @@ class BlockResponse(BaseModel):
 
 
 class PlanResponse(BaseModel):
-    # uuid: UUID  # todo: тут что-то нужно придумать, чтобы переходить по uuid на страницу планировки
+    # todo: тут что-то нужно придумать, чтобы переходить по uuid на страницу планировки
     block_uuid: UUID
     rooms: RoomTypeEnum
     square_total: Decimal
