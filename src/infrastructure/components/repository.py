@@ -2,7 +2,7 @@ import abc
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
-from typing import TYPE_CHECKING, ClassVar, Generic, TypeVar
+from typing import TYPE_CHECKING, ClassVar, TypeVar
 
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
@@ -15,7 +15,7 @@ _tx_connection_cv: ContextVar[dict[AsyncEngine, AsyncConnection]] = ContextVar("
 _connection_cv: ContextVar[dict[AsyncEngine, AsyncConnection]] = ContextVar("_connection_cv")
 
 
-class _SqlAlchemyAcquire(abc.ABC, Generic[T]):
+class _SqlAlchemyAcquire[T](abc.ABC):
     CONNECTION_STORAGE: ClassVar[ContextVar[dict[AsyncEngine, AsyncConnection]]]
 
     def __init__(self, engine: AsyncEngine, repo_factory: Callable[[AsyncConnection], T]) -> None:

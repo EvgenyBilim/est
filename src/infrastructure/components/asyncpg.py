@@ -37,7 +37,7 @@ class AsyncPGEngineDeps:
         def orjson_serializer(obj: object) -> str:
             return orjson.dumps(obj, default=str, option=orjson.OPT_NON_STR_KEYS).decode()
 
-        engine = await self._exit_stack.enter_async_context(
+        return await self._exit_stack.enter_async_context(
             self._create_sqlalchemy_engine(
                 self._settings.postgres_dsn,
                 pool_size=settings.pg_pool_size,
@@ -50,7 +50,6 @@ class AsyncPGEngineDeps:
                 json_deserializer=orjson.loads,
             )
         )
-        return engine
 
     async def __call__(self, state: State):
         payload = await self._startup()

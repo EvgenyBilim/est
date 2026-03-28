@@ -60,7 +60,7 @@ class PlanCreateSchema(BaseModel):
     square_kitchen: Decimal = Field(gt=0)
     trim: TrimTypeEnum
     bathroom_type: BathroomTypeEnum
-    roof_height: Decimal | None = Field(default=None, gt=0)
+    roof_height: Decimal = Field(gt=0)
     price_base: int = Field(gt=0)
     price_discount: int | None = Field(default=None, ge=0)
     floor: int | None = Field(default=None, ge=1)
@@ -235,7 +235,7 @@ class BlockResponse(BaseModel):
 
 
 class PlanResponse(BaseModel):
-    # uuid: UUID  # todo: тут что-то нужно придумать, чтобы переходить по uuid на страницу планировки
+    # todo: тут что-то нужно придумать, чтобы переходить по uuid на страницу планировки
     block_uuid: UUID
     rooms: RoomTypeEnum
     square_total: Decimal

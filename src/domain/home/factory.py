@@ -156,7 +156,7 @@ class HomeFactory:
             )
 
     def _add_plan(self, home: Home, block_uuid: UUID, data: PlanCreateData) -> Plan:
-        plan = home.add_plan_to_block(
+        return home.add_plan_to_block(
             block_uuid=block_uuid,
             rooms=data.rooms,
             agreement_uuid=data.agreement_uuid,
@@ -170,7 +170,6 @@ class HomeFactory:
             floor=data.floor,
             img_path=data.img_path,
         )
-        return plan
 
     # ==== Синхронизация ====
 
@@ -186,14 +185,14 @@ class HomeFactory:
 
     def _update_block(self, home: Home, data: BlockSyncData) -> None:
         home.update_block(
-            block_uuid=data.uuid,
+            block_uuid=data.uuid,  # type: ignore
             name=data.name,
             address=data.address,
             floors=data.floors,
             wall_type=data.wall_type,
             delivery_date=data.delivery_date,
         )
-        self._sync_plans(home, data.uuid, data.plans)
+        self._sync_plans(home, data.uuid, data.plans)  # type: ignore
 
     def _create_block(self, home: Home, data: BlockSyncData) -> None:
         block = home.add_block(
@@ -219,7 +218,7 @@ class HomeFactory:
     def _update_plan(self, home: Home, block_uuid: UUID, data: PlanSyncData) -> None:
         home.update_plan(
             block_uuid=block_uuid,
-            plan_uuid=data.uuid,
+            plan_uuid=data.uuid,  # type: ignore
             rooms=data.rooms,
             agreement_uuid=data.agreement_uuid,
             square_total=data.square_total,

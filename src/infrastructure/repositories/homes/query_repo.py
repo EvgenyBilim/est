@@ -19,12 +19,12 @@ from src.api.schemas.homes import (
 )
 from src.application.home.queries import HomeSearchFilter, HomeTagFilter
 from src.enums import GalleryImageTypeEnum
-from src.infrastructure.models import (
-    AgreementType as AgreementTypeTable,
+from src.infrastructure.models.contracts import AgreementType as AgreementTypeTable
+from src.infrastructure.models.developer import Developer as DeveloperTable
+from src.infrastructure.models.gallery import HomeGallery as HomeGalleryTable
+from src.infrastructure.models.home import (
     Block as BlockTable,
-    Developer as DeveloperTable,
     Home as HomeTable,
-    HomeGallery as HomeGalleryTable,
     HomeInfo as HomeInfoTable,
     HomeLocation as HomeLocationTable,
     HomeMetroStation as HomeMetroStationTable,
@@ -35,7 +35,7 @@ from src.infrastructure.repositories.base import BaseDBEntity
 
 
 class HomeQueryRepository(BaseDBEntity):
-    async def get_by_uuid(self, home_uuid: str) -> HomeResponse | None:
+    async def get_by_uuid(self, home_uuid: UUID) -> HomeResponse | None:
         home_row = await self._get_home_row(home_uuid)
 
         if not home_row:
@@ -87,7 +87,7 @@ class HomeQueryRepository(BaseDBEntity):
             gallery=gallery,
         )
 
-    async def _get_home_row(self, home_uuid: str):
+    async def _get_home_row(self, home_uuid: UUID):
         developer_alias = DeveloperTable.__table__.alias()
 
         home_result = await self._connection.execute(
@@ -98,11 +98,11 @@ class HomeQueryRepository(BaseDBEntity):
         )
         return home_result.mappings().first()
 
-    async def _get_blocks(self, home_uuid: str) -> list[BlockResponse]:
+    async def _get_blocks(self, home_uuid: UUID) -> list[BlockResponse]:
         blocks_result = await self._connection.execute(select(BlockTable).where(BlockTable.home_uuid == home_uuid))
         return [BlockResponse(**row) for row in blocks_result.mappings()]
 
-    async def _get_plans(self, home_uuid: str) -> list[PlanResponse]:
+    async def _get_plans(self, home_uuid: UUID) -> list[PlanResponse]:
         agreement_type_alias = AgreementTypeTable.__table__.alias()
         block_alias = BlockTable.__table__.alias()
 
@@ -144,7 +144,7 @@ class HomeQueryRepository(BaseDBEntity):
         )
         return [PlanResponse(**x) for x in plans_result.mappings()]
 
-    async def _get_gallery(self, home_uuid: str) -> HomeGalleryResponse:
+    async def _get_gallery(self, home_uuid: UUID) -> HomeGalleryResponse:
         gallery = await self._connection.execute(
             select(
                 HomeGalleryTable.image_type,
