@@ -18,7 +18,7 @@ class Create:
             await repo.create(locations=flat_locations)
 
     def _flatten_locations(
-        self, locations: list[LocationCreateSchema], parent_uuid: UUID | None,
+        self, locations: list[LocationCreateSchema], parent_uuid: UUID | None
     ) -> list[dict[str, Any]]:
         result = []
 

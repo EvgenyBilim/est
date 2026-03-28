@@ -35,6 +35,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 120
 
+[tool.ruff.format]
+exclude = ["src/application/seeder/const.py"]
+
 [tool.ruff.lint]
 select = ["I"]
 

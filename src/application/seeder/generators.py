@@ -42,7 +42,7 @@ def random_string(length: int = 20) -> str:
 
 
 def generate_districts(
-    locations: list[LocationCreateSchema], min_districts: int = 1, max_districts: int = 20,
+    locations: list[LocationCreateSchema], min_districts: int = 1, max_districts: int = 20
 ) -> list[LocationCreateSchema]:
     result = []
 
