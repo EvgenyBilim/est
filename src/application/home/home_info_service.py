@@ -13,12 +13,12 @@ from src.domain.home.value_objects import (
     RoomStats,
 )
 from src.enums import RoomTypeEnum
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.agreements import AgreementsRepository
-from src.infrastructure.repositories.home_info import HomeInfoRepository
-from src.infrastructure.repositories.locations import LocationsRepository
-from src.infrastructure.repositories.metro import MetroRepository
-from src.infrastructure.repositories.payments import PaymentsRepository
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.agreements import AgreementsRepository
+from src.infra.repositories.home_info import HomeInfoRepository
+from src.infra.repositories.locations import LocationsRepository
+from src.infra.repositories.metro import MetroRepository
+from src.infra.repositories.payments import PaymentsRepository
 
 
 class HomeInfoService:
