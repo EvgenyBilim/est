@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Enum, ForeignKey, String, text
+from sqlalchemy import Column, Enum, ForeignKey, Integer, String, text
 from sqlalchemy.dialects.postgresql import UUID
 
 from src.enums import LocationTypeEnum
@@ -13,3 +13,4 @@ class Location(BaseEstModel):
     name = Column(String, nullable=False)
     alias = Column(String, nullable=False)
     type = Column(Enum(LocationTypeEnum), nullable=False, index=True)
+    priority = Column(Integer, nullable=True)

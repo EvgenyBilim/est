@@ -10,6 +10,7 @@ class LocationCreateSchema(BaseModel):
     name: str
     alias: str
     type: LocationTypeEnum
+    priority: int | None = None
     locations: list["LocationCreateSchema"] | None = None
 
 
@@ -22,5 +23,17 @@ class LocationResponse(BaseModel):
     name: str
     alias: str
     type: LocationTypeEnum
+    priority: int | None
     created_at: datetime
     updated_at: datetime | None
+
+
+class SearchAreaItem(BaseModel):
+    uuid: UUID
+    name: str
+
+
+class CountrySearchAreasResponse(BaseModel):
+    uuid: UUID
+    name: str
+    locations: list[SearchAreaItem]

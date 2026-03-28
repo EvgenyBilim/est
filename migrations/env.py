@@ -3,6 +3,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine, make_url
 
+import src.infra.models  # noqa: F401
 from src.infra.models.base import Base
 from src.settings import Settings
 

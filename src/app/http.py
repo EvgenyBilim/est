@@ -17,7 +17,7 @@ def create_app(settings: Settings) -> FastAPI:
         title="Estate Service",
         lifespan=StateManager(settings=settings).lifespan,
     )
-    router = APIRouter(prefix="/http/v1")
+    router = APIRouter(prefix="/api/v1")
     router.include_router(agreement_router)
     router.include_router(developers_router)
     router.include_router(payments_router)
