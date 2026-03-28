@@ -1,6 +1,6 @@
-from src.api.schemas.agreements import AgreementTypeCreateSchema, AgreementTypeModel
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.agreements import AgreementsRepository
+from src.http.schemas.agreements import AgreementTypeCreateSchema, AgreementTypeModel
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.agreements import AgreementsRepository
 
 
 class AgreementsService:

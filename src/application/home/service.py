@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from src.api.schemas.homes import HomeNameResponse, HomePreviewResponse, HomeResponse
 from src.application.home.commands import (
     AddBlocksCommand,
     AddPlansCommand,
@@ -11,9 +10,10 @@ from src.application.home.home_info_service import HomeInfoService
 from src.application.home.queries import HomeSearchFilter, HomeTagFilter
 from src.domain.home.factory import HomeFactory
 from src.errors import NotFoundError
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.homes.command_repo import HomeCommandRepository
-from src.infrastructure.repositories.homes.query_repo import HomeQueryRepository
+from src.http.schemas.homes import HomeNameResponse, HomePreviewResponse, HomeResponse
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.homes.command_repo import HomeCommandRepository
+from src.infra.repositories.homes.query_repo import HomeQueryRepository
 
 
 class HomesService:

@@ -1,6 +1,6 @@
-from src.api.schemas.developers import DeveloperCreateSchema, DeveloperModel
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.developers import DevelopersRepository
+from src.http.schemas.developers import DeveloperCreateSchema, DeveloperModel
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.developers import DevelopersRepository
 
 
 class DevelopersService:

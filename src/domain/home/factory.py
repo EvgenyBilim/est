@@ -19,8 +19,8 @@ from src.domain.home.specifications import (
     MetroStationInSameCitySpec,
     PaymentTypesMatchCountrySpec,
 )
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.locations import LocationsRepository
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.locations import LocationsRepository
 
 
 class HomeFactory:

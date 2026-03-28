@@ -1,10 +1,14 @@
 from typing import Any
 from uuid import UUID, uuid4
 
-from src.api.schemas.locations import LocationCreateSchema, LocationResponse
 from src.enums import LocationTypeEnum
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.locations import LocationsRepository
+from src.http.schemas.locations import (
+    CountrySearchAreasResponse,
+    LocationCreateSchema,
+    LocationResponse,
+)
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.locations import LocationsRepository
 
 
 class Create:
@@ -32,6 +36,7 @@ class Create:
                     "name": location.name,
                     "alias": location.alias,
                     "type": location.type,
+                    "priority": location.priority,
                 }
             )
 
@@ -68,9 +73,19 @@ class GetLocationPath:
             return await repo.get_location_path(location_uuid=location_uuid)
 
 
+class GetSearchAreas:
+    def __init__(self, locations_repo: AcquireTxRepository[LocationsRepository]):
+        self._locations_repo = locations_repo
+
+    async def __call__(self) -> list[CountrySearchAreasResponse]:
+        async with self._locations_repo() as repo:
+            return await repo.get_search_areas()
+
+
 class LocationsService:
     def __init__(self, locations_repo: AcquireTxRepository[LocationsRepository]):
         self.create = Create(locations_repo=locations_repo)
         self.get = Get(locations_repo=locations_repo)
         self.get_by_type = GetByType(locations_repo=locations_repo)
         self.get_location_path = GetLocationPath(locations_repo=locations_repo)
+        self.get_search_areas = GetSearchAreas(locations_repo=locations_repo)

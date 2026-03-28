@@ -14,17 +14,17 @@ from src.domain.home.specifications import (
     MetroStationInSameCitySpec,
     PaymentTypesMatchCountrySpec,
 )
-from src.infrastructure.components.asyncpg import AsyncPGEngineDeps
-from src.infrastructure.components.base import STATE, app_dep, get_from_state
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.agreements import AgreementsRepository
-from src.infrastructure.repositories.developers import DevelopersRepository
-from src.infrastructure.repositories.home_info import HomeInfoRepository
-from src.infrastructure.repositories.homes.command_repo import HomeCommandRepository
-from src.infrastructure.repositories.homes.query_repo import HomeQueryRepository
-from src.infrastructure.repositories.locations import LocationsRepository
-from src.infrastructure.repositories.metro import MetroRepository
-from src.infrastructure.repositories.payments import PaymentsRepository
+from src.infra.components.asyncpg import AsyncPGEngineDeps
+from src.infra.components.base import STATE, app_dep, get_from_state
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.agreements import AgreementsRepository
+from src.infra.repositories.developers import DevelopersRepository
+from src.infra.repositories.home_info import HomeInfoRepository
+from src.infra.repositories.homes.command_repo import HomeCommandRepository
+from src.infra.repositories.homes.query_repo import HomeQueryRepository
+from src.infra.repositories.locations import LocationsRepository
+from src.infra.repositories.metro import MetroRepository
+from src.infra.repositories.payments import PaymentsRepository
 from src.settings import Settings
 
 

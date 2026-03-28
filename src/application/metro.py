@@ -1,8 +1,8 @@
 from uuid import UUID, uuid4
 
-from src.api.schemas.metro import MetropolitanCreateSchema, MetroStationModel
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.metro import MetroRepository
+from src.http.schemas.metro import MetropolitanCreateSchema, MetroStationModel
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.metro import MetroRepository
 
 
 class CreateWithStructure:

@@ -2,10 +2,10 @@ from abc import ABC, abstractmethod
 
 from src.domain.home.aggregate import Home
 from src.domain.home.errors import DomainError
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.agreements import AgreementsRepository
-from src.infrastructure.repositories.metro import MetroRepository
-from src.infrastructure.repositories.payments import PaymentsRepository
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.agreements import AgreementsRepository
+from src.infra.repositories.metro import MetroRepository
+from src.infra.repositories.payments import PaymentsRepository
 
 
 class HomeSpecification(ABC):

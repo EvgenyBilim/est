@@ -1,0 +1,427 @@
+"""init
+
+Revision ID: 6222a70891aa
+Revises:
+Create Date: 2026-03-28 20:37:39.689863
+
+"""
+
+from collections.abc import Sequence
+
+import sqlalchemy as sa
+from alembic import op
+from sqlalchemy.dialects import postgresql
+
+# revision identifiers, used by Alembic.
+revision: str = "6222a70891aa"
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
+
+
+def upgrade() -> None:
+    op.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+
+    op.create_table(
+        "banks",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("logo", sa.String(), nullable=True),
+        sa.Column("description", sa.String(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_table(
+        "developers",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("logo", sa.String(), nullable=True),
+        sa.Column("description", sa.Text(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_table(
+        "locations",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("parent_uuid", sa.UUID(), nullable=True),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("alias", sa.String(), nullable=False),
+        sa.Column("type", sa.Enum("COUNTRY", "REGION", "CITY", "DISTRICT", name="locationtypeenum"), nullable=False),
+        sa.Column("priority", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["parent_uuid"],
+            ["locations.uuid"],
+        ),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_locations_parent_uuid"), "locations", ["parent_uuid"], unique=False)
+    op.create_index(op.f("ix_locations_type"), "locations", ["type"], unique=False)
+    op.create_table(
+        "agreement_types",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("name", sa.String(length=255), nullable=False),
+        sa.Column("location_uuid", sa.UUID(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["location_uuid"], ["locations.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_agreement_types_location_uuid"), "agreement_types", ["location_uuid"], unique=False)
+    op.create_index(op.f("ix_agreement_types_name"), "agreement_types", ["name"], unique=False)
+    op.create_table(
+        "bank_programs",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("bank_uuid", sa.UUID(), nullable=True),
+        sa.Column("location_uuid", sa.UUID(), nullable=True),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("description", sa.String(), nullable=True),
+        sa.Column("min_rate", sa.DECIMAL(), nullable=False),
+        sa.Column("contribution", sa.DECIMAL(), nullable=False),
+        sa.Column("terms", sa.Integer(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["bank_uuid"], ["banks.uuid"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["location_uuid"], ["locations.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_table(
+        "homes",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("alias", sa.String(), nullable=False),
+        sa.Column("developer_uuid", sa.UUID(), nullable=True),
+        sa.Column("description", sa.Text(), nullable=True),
+        sa.Column(
+            "housing_class",
+            sa.Enum("ECONOMIC", "COMFORT", "BUSINESS", "PREMIUM", name="housingclassenum"),
+            nullable=False,
+        ),
+        sa.Column(
+            "parking_types",
+            postgresql.ARRAY(sa.Enum("OPEN", "COVERED", "UNDERGROUND", name="parkingtypeenum")),
+            nullable=False,
+        ),
+        sa.Column("is_apartment", sa.Boolean(), nullable=False),
+        sa.Column("has_closed_territory", sa.Boolean(), nullable=False),
+        sa.Column("has_security", sa.Boolean(), nullable=False),
+        sa.Column(
+            "coordinates", postgresql.JSONB(astext_type=sa.Text()), server_default=sa.text("'[]'::jsonb"), nullable=True
+        ),
+        sa.Column("sort_order", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["developer_uuid"], ["developers.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_homes_developer_uuid"), "homes", ["developer_uuid"], unique=False)
+    op.create_index(op.f("ix_homes_housing_class"), "homes", ["housing_class"], unique=False)
+    op.create_index("ix_homes_parking_types", "homes", ["parking_types"], unique=False, postgresql_using="gin")
+    op.create_index(op.f("ix_homes_sort_order"), "homes", ["sort_order"], unique=False)
+    op.create_table(
+        "metropolitans",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("location_uuid", sa.UUID(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["location_uuid"], ["locations.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_metropolitans_location_uuid"), "metropolitans", ["location_uuid"], unique=False)
+    op.create_table(
+        "payment_types",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("name", sa.String(length=255), nullable=False),
+        sa.Column("location_uuid", sa.UUID(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["location_uuid"], ["locations.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_payment_types_location_uuid"), "payment_types", ["location_uuid"], unique=False)
+    op.create_index(op.f("ix_payment_types_name"), "payment_types", ["name"], unique=False)
+    op.create_table(
+        "bank_programs_homes",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("bank_program_uuid", sa.UUID(), nullable=True),
+        sa.Column("home_uuid", sa.UUID(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["bank_program_uuid"], ["bank_programs.uuid"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["home_uuid"], ["homes.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_table(
+        "blocks",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("home_uuid", sa.UUID(), nullable=True),
+        sa.Column("address", sa.String(), nullable=True),
+        sa.Column("floors", sa.Integer(), nullable=False),
+        sa.Column(
+            "wall_type", sa.Enum("BRICK_MONOLITH", "MONOLITH", "BRICK", "PANEL", name="walltypeenum"), nullable=False
+        ),
+        sa.Column("delivery_date", sa.Date(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["home_uuid"], ["homes.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_blocks_delivery_date"), "blocks", ["delivery_date"], unique=False)
+    op.create_index(op.f("ix_blocks_home_uuid"), "blocks", ["home_uuid"], unique=False)
+    op.create_index(op.f("ix_blocks_wall_type"), "blocks", ["wall_type"], unique=False)
+    op.create_table(
+        "home_gallery",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("home_uuid", sa.UUID(), nullable=True),
+        sa.Column("image_type", sa.Enum("PREVIEW", "FULL", name="galleryimagetypeenum"), nullable=True),
+        sa.Column("image_path", sa.Text(), nullable=False),
+        sa.Column("sort_order", sa.Integer(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["home_uuid"], ["homes.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_home_gallery_home_uuid"), "home_gallery", ["home_uuid"], unique=False)
+    op.create_index(op.f("ix_home_gallery_image_type"), "home_gallery", ["image_type"], unique=False)
+    op.create_index(op.f("ix_home_gallery_sort_order"), "home_gallery", ["sort_order"], unique=False)
+    op.create_table(
+        "home_info",
+        sa.Column("uuid", sa.UUID(), nullable=False),
+        sa.Column("delivery_from", sa.Date(), nullable=True),
+        sa.Column("delivery_to", sa.Date(), nullable=True),
+        sa.Column("floors_min", sa.Integer(), nullable=True),
+        sa.Column("floors_max", sa.Integer(), nullable=True),
+        sa.Column("roof_height_min", sa.DECIMAL(), nullable=True),
+        sa.Column("roof_height_max", sa.DECIMAL(), nullable=True),
+        sa.Column(
+            "wall_types",
+            postgresql.ARRAY(sa.Enum("BRICK_MONOLITH", "MONOLITH", "BRICK", "PANEL", name="walltypeenum")),
+            nullable=True,
+        ),
+        sa.Column(
+            "trim_types", postgresql.ARRAY(sa.Enum("NO_TRIM", "PARTIAL", "FULL", name="trimtypeenum")), nullable=True
+        ),
+        sa.Column(
+            "bathroom_types",
+            postgresql.ARRAY(sa.Enum("UNIFIED", "SEPARATED", "TWO_AND_MORE", name="bathroomtypeenum")),
+            nullable=True,
+        ),
+        sa.Column("agreement_types", postgresql.ARRAY(sa.String()), nullable=True),
+        sa.Column("payment_types", postgresql.ARRAY(sa.String()), nullable=True),
+        sa.Column("locations", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column("metro_stations", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column("plans_info", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column("blocks_count", sa.Integer(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["uuid"], ["homes.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_home_info_delivery_from"), "home_info", ["delivery_from"], unique=False)
+    op.create_index(op.f("ix_home_info_delivery_to"), "home_info", ["delivery_to"], unique=False)
+    op.create_index(op.f("ix_home_info_floors_max"), "home_info", ["floors_max"], unique=False)
+    op.create_index(op.f("ix_home_info_floors_min"), "home_info", ["floors_min"], unique=False)
+    op.create_index(op.f("ix_home_info_roof_height_max"), "home_info", ["roof_height_max"], unique=False)
+    op.create_index(op.f("ix_home_info_roof_height_min"), "home_info", ["roof_height_min"], unique=False)
+    op.create_index(
+        "ix_homes_info_agreement_types", "home_info", ["agreement_types"], unique=False, postgresql_using="gin"
+    )
+    op.create_index("ix_homes_info_payment_types", "home_info", ["payment_types"], unique=False, postgresql_using="gin")
+    op.create_index("ix_homes_info_trim_types", "home_info", ["trim_types"], unique=False, postgresql_using="gin")
+    op.create_index("ix_homes_info_wall_types", "home_info", ["wall_types"], unique=False, postgresql_using="gin")
+    op.create_table(
+        "home_locations",
+        sa.Column("home_uuid", sa.UUID(), nullable=False),
+        sa.Column("location_uuid", sa.UUID(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["home_uuid"], ["homes.uuid"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["location_uuid"], ["locations.uuid"], ondelete="RESTRICT"),
+        sa.PrimaryKeyConstraint("location_uuid", "home_uuid", name="pk_location_home"),
+    )
+    op.create_index(op.f("ix_home_locations_home_uuid"), "home_locations", ["home_uuid"], unique=False)
+    op.create_index(op.f("ix_home_locations_location_uuid"), "home_locations", ["location_uuid"], unique=False)
+    op.create_table(
+        "home_payment_types",
+        sa.Column("home_uuid", sa.UUID(), nullable=False),
+        sa.Column("payment_type_uuid", sa.UUID(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["home_uuid"], ["homes.uuid"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["payment_type_uuid"], ["payment_types.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("payment_type_uuid", "home_uuid", name="pk_payment_type_home"),
+    )
+    op.create_index(op.f("ix_home_payment_types_home_uuid"), "home_payment_types", ["home_uuid"], unique=False)
+    op.create_index(
+        op.f("ix_home_payment_types_payment_type_uuid"), "home_payment_types", ["payment_type_uuid"], unique=False
+    )
+    op.create_table(
+        "home_tags",
+        sa.Column("home_uuid", sa.UUID(), nullable=False),
+        sa.Column("tag", sa.Text(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["home_uuid"], ["homes.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("home_uuid", "tag", name="pk_home_tag"),
+    )
+    op.create_index("ix_home_tags_home_uuid", "home_tags", ["home_uuid"], unique=False)
+    op.create_index(
+        "ix_home_tags_tag_trgm",
+        "home_tags",
+        ["tag"],
+        unique=False,
+        postgresql_using="gin",
+        postgresql_ops={"tag": "gin_trgm_ops"},
+    )
+    op.create_table(
+        "metro_lines",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("metropolitan_uuid", sa.UUID(), nullable=True),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("color", sa.String(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["metropolitan_uuid"], ["metropolitans.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_metro_lines_metropolitan_uuid"), "metro_lines", ["metropolitan_uuid"], unique=False)
+    op.create_table(
+        "metro_stations",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("metro_line_uuid", sa.UUID(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["metro_line_uuid"], ["metro_lines.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_metro_stations_metro_line_uuid"), "metro_stations", ["metro_line_uuid"], unique=False)
+    op.create_index(op.f("ix_metro_stations_name"), "metro_stations", ["name"], unique=False)
+    op.create_table(
+        "plans",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("block_uuid", sa.UUID(), nullable=True),
+        sa.Column(
+            "rooms",
+            sa.Enum("STUDIO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "MORE", "FREE", name="roomtypeenum"),
+            nullable=False,
+        ),
+        sa.Column("agreement_uuid", sa.UUID(), nullable=True),
+        sa.Column("square_total", sa.Float(), nullable=False),
+        sa.Column("square_kitchen", sa.Float(), nullable=False),
+        sa.Column("trim", sa.Enum("NO_TRIM", "PARTIAL", "FULL", name="trimtypeenum"), nullable=False),
+        sa.Column(
+            "bathroom_type", sa.Enum("UNIFIED", "SEPARATED", "TWO_AND_MORE", name="bathroomtypeenum"), nullable=False
+        ),
+        sa.Column("roof_height", sa.Float(), nullable=False),
+        sa.Column("price_base", sa.Integer(), nullable=False),
+        sa.Column("price_discount", sa.Integer(), nullable=True),
+        sa.Column("floor", sa.Integer(), nullable=True),
+        sa.Column("img_path", sa.String(), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["agreement_uuid"], ["agreement_types.uuid"], ondelete="RESTRICT"),
+        sa.ForeignKeyConstraint(["block_uuid"], ["blocks.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_plans_block_uuid"), "plans", ["block_uuid"], unique=False)
+    op.create_index(op.f("ix_plans_floor"), "plans", ["floor"], unique=False)
+    op.create_index(op.f("ix_plans_price_base"), "plans", ["price_base"], unique=False)
+    op.create_index(op.f("ix_plans_price_discount"), "plans", ["price_discount"], unique=False)
+    op.create_index(op.f("ix_plans_roof_height"), "plans", ["roof_height"], unique=False)
+    op.create_index(op.f("ix_plans_rooms"), "plans", ["rooms"], unique=False)
+    op.create_index(op.f("ix_plans_square_kitchen"), "plans", ["square_kitchen"], unique=False)
+    op.create_index(op.f("ix_plans_square_total"), "plans", ["square_total"], unique=False)
+    op.create_table(
+        "home_metro_stations",
+        sa.Column("uuid", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("home_uuid", sa.UUID(), nullable=True),
+        sa.Column("station_uuid", sa.UUID(), nullable=True),
+        sa.Column("minutes_to_metro", sa.Integer(), nullable=False),
+        sa.Column("transport", sa.Enum("ON_FOOT", "TRANSPORT", name="transporttypeenum"), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(["home_uuid"], ["homes.uuid"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["station_uuid"], ["metro_stations.uuid"], ondelete="CASCADE"),
+        sa.PrimaryKeyConstraint("uuid"),
+    )
+    op.create_index(op.f("ix_home_metro_stations_home_uuid"), "home_metro_stations", ["home_uuid"], unique=False)
+    op.create_index(op.f("ix_home_metro_stations_station_uuid"), "home_metro_stations", ["station_uuid"], unique=False)
+    # ### end Alembic commands ###
+
+
+def downgrade() -> None:
+    # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f("ix_home_metro_stations_station_uuid"), table_name="home_metro_stations")
+    op.drop_index(op.f("ix_home_metro_stations_home_uuid"), table_name="home_metro_stations")
+    op.drop_table("home_metro_stations")
+    op.drop_index(op.f("ix_plans_square_total"), table_name="plans")
+    op.drop_index(op.f("ix_plans_square_kitchen"), table_name="plans")
+    op.drop_index(op.f("ix_plans_rooms"), table_name="plans")
+    op.drop_index(op.f("ix_plans_roof_height"), table_name="plans")
+    op.drop_index(op.f("ix_plans_price_discount"), table_name="plans")
+    op.drop_index(op.f("ix_plans_price_base"), table_name="plans")
+    op.drop_index(op.f("ix_plans_floor"), table_name="plans")
+    op.drop_index(op.f("ix_plans_block_uuid"), table_name="plans")
+    op.drop_table("plans")
+    op.drop_index(op.f("ix_metro_stations_name"), table_name="metro_stations")
+    op.drop_index(op.f("ix_metro_stations_metro_line_uuid"), table_name="metro_stations")
+    op.drop_table("metro_stations")
+    op.drop_index(op.f("ix_metro_lines_metropolitan_uuid"), table_name="metro_lines")
+    op.drop_table("metro_lines")
+    op.drop_index(
+        "ix_home_tags_tag_trgm", table_name="home_tags", postgresql_using="gin", postgresql_ops={"tag": "gin_trgm_ops"}
+    )
+    op.drop_index("ix_home_tags_home_uuid", table_name="home_tags")
+    op.drop_table("home_tags")
+    op.drop_index(op.f("ix_home_payment_types_payment_type_uuid"), table_name="home_payment_types")
+    op.drop_index(op.f("ix_home_payment_types_home_uuid"), table_name="home_payment_types")
+    op.drop_table("home_payment_types")
+    op.drop_index(op.f("ix_home_locations_location_uuid"), table_name="home_locations")
+    op.drop_index(op.f("ix_home_locations_home_uuid"), table_name="home_locations")
+    op.drop_table("home_locations")
+    op.drop_index("ix_homes_info_wall_types", table_name="home_info", postgresql_using="gin")
+    op.drop_index("ix_homes_info_trim_types", table_name="home_info", postgresql_using="gin")
+    op.drop_index("ix_homes_info_payment_types", table_name="home_info", postgresql_using="gin")
+    op.drop_index("ix_homes_info_agreement_types", table_name="home_info", postgresql_using="gin")
+    op.drop_index(op.f("ix_home_info_roof_height_min"), table_name="home_info")
+    op.drop_index(op.f("ix_home_info_roof_height_max"), table_name="home_info")
+    op.drop_index(op.f("ix_home_info_floors_min"), table_name="home_info")
+    op.drop_index(op.f("ix_home_info_floors_max"), table_name="home_info")
+    op.drop_index(op.f("ix_home_info_delivery_to"), table_name="home_info")
+    op.drop_index(op.f("ix_home_info_delivery_from"), table_name="home_info")
+    op.drop_table("home_info")
+    op.drop_index(op.f("ix_home_gallery_sort_order"), table_name="home_gallery")
+    op.drop_index(op.f("ix_home_gallery_image_type"), table_name="home_gallery")
+    op.drop_index(op.f("ix_home_gallery_home_uuid"), table_name="home_gallery")
+    op.drop_table("home_gallery")
+    op.drop_index(op.f("ix_blocks_wall_type"), table_name="blocks")
+    op.drop_index(op.f("ix_blocks_home_uuid"), table_name="blocks")
+    op.drop_index(op.f("ix_blocks_delivery_date"), table_name="blocks")
+    op.drop_table("blocks")
+    op.drop_table("bank_programs_homes")
+    op.drop_index(op.f("ix_payment_types_name"), table_name="payment_types")
+    op.drop_index(op.f("ix_payment_types_location_uuid"), table_name="payment_types")
+    op.drop_table("payment_types")
+    op.drop_index(op.f("ix_metropolitans_location_uuid"), table_name="metropolitans")
+    op.drop_table("metropolitans")
+    op.drop_index(op.f("ix_homes_sort_order"), table_name="homes")
+    op.drop_index("ix_homes_parking_types", table_name="homes", postgresql_using="gin")
+    op.drop_index(op.f("ix_homes_housing_class"), table_name="homes")
+    op.drop_index(op.f("ix_homes_developer_uuid"), table_name="homes")
+    op.drop_table("homes")
+    op.drop_table("bank_programs")
+    op.drop_index(op.f("ix_agreement_types_name"), table_name="agreement_types")
+    op.drop_index(op.f("ix_agreement_types_location_uuid"), table_name="agreement_types")
+    op.drop_table("agreement_types")
+    op.drop_index(op.f("ix_locations_type"), table_name="locations")
+    op.drop_index(op.f("ix_locations_parent_uuid"), table_name="locations")
+    op.drop_table("locations")
+    op.drop_table("developers")
+    op.drop_table("banks")
+    # ### end Alembic commands ###

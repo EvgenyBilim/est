@@ -62,7 +62,7 @@ max-complexity = 50
 "tests/*" = ["S", "C4", "ISC", "SLF", "RUF012"]
 "src/*" = ["PT"]
 "src/application/seeder/*" = ["S"]
-"src/api/app.py" = ["S104"]
+"src/app/http.py" = ["S104"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src"]

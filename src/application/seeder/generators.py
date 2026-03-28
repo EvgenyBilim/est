@@ -5,15 +5,6 @@ from datetime import date, timedelta
 from decimal import Decimal
 from uuid import UUID
 
-from src.api.schemas.agreements import AgreementTypeCreateSchema, AgreementTypeModel
-from src.api.schemas.developers import DeveloperCreateSchema
-from src.api.schemas.locations import LocationCreateSchema, LocationResponse
-from src.api.schemas.metro import (
-    MetroLineCreateSchema,
-    MetropolitanCreateSchema,
-    MetroStationCreateSchema,
-)
-from src.api.schemas.payments import PaymentTypeCreateSchema, PaymentTypeModel
 from src.application.home.commands import (
     BlockCreateData,
     GalleryImageCreateData,
@@ -35,6 +26,15 @@ from src.enums import (
     TrimTypeEnum,
     WallTypeEnum,
 )
+from src.http.schemas.agreements import AgreementTypeCreateSchema, AgreementTypeModel
+from src.http.schemas.developers import DeveloperCreateSchema
+from src.http.schemas.locations import LocationCreateSchema, LocationResponse
+from src.http.schemas.metro import (
+    MetroLineCreateSchema,
+    MetropolitanCreateSchema,
+    MetroStationCreateSchema,
+)
+from src.http.schemas.payments import PaymentTypeCreateSchema, PaymentTypeModel
 
 
 def random_string(length: int = 20) -> str:

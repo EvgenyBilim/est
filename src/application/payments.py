@@ -1,6 +1,6 @@
-from src.api.schemas.payments import PaymentTypeCreateSchema, PaymentTypeModel
-from src.infrastructure.components.repository import AcquireTxRepository
-from src.infrastructure.repositories.payments import PaymentsRepository
+from src.http.schemas.payments import PaymentTypeCreateSchema, PaymentTypeModel
+from src.infra.components.repository import AcquireTxRepository
+from src.infra.repositories.payments import PaymentsRepository
 
 
 class PaymentsService:

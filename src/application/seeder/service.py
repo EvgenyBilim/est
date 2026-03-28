@@ -1,4 +1,3 @@
-from src.api.schemas.locations import LocationCreateSchema
 from src.application.agreements import AgreementsService
 from src.application.developers import DevelopersService
 from src.application.home.service import HomesService
@@ -17,6 +16,7 @@ from src.application.seeder.generators import (
     generate_payments,
 )
 from src.enums import LocationTypeEnum
+from src.http.schemas.locations import LocationCreateSchema
 
 
 class DatabaseSeeder:
