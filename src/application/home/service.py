@@ -7,10 +7,10 @@ from src.application.home.commands import (
     SyncHomeCommand,
 )
 from src.application.home.home_info_service import HomeInfoService
-from src.application.home.queries import HomeSearchFilter, HomeTagFilter
+from src.application.home.queries import HomeSearchFilter, HomeTagFilter, PlanSearchFilter
 from src.domain.home.factory import HomeFactory
 from src.errors import NotFoundError
-from src.http.schemas.homes import HomeNameResponse, HomePreviewResponse, HomeResponse
+from src.http.schemas.homes import HomeNameResponse, HomePreviewResponse, HomeResponse, PlanResponse
 from src.infra.components.repository import AcquireTxRepository
 from src.infra.repositories.homes.command_repo import HomeCommandRepository
 from src.infra.repositories.homes.query_repo import HomeQueryRepository
@@ -97,14 +97,18 @@ class HomesService:
         async with self._home_query_repo() as repo:
             return await repo.get_by_uuid(home_uuid)
 
-    async def search(self, filters: HomeSearchFilter) -> list[HomePreviewResponse]:
+    async def search_homes(self, filters: HomeSearchFilter) -> list[HomePreviewResponse]:
         """Поиск домов по параметрам"""
 
         async with self._home_query_repo() as repo:
-            return await repo.search(filters)
+            return await repo.search_homes(filters)
 
     async def get_by_tag(self, tag: HomeTagFilter) -> list[HomeNameResponse]:
         """Получение названий домов по тегу"""
 
         async with self._home_query_repo() as repo:
             return await repo.get_by_tag(tag)
+
+    async def search_plans(self, home_uuid: UUID, filters: PlanSearchFilter) -> list[PlanResponse]:
+        async with self._home_query_repo() as repo:
+            return await repo.search_plans(home_uuid=home_uuid, filters=filters)

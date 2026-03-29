@@ -2,7 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import func, literal, or_, select
 
-from src.application.home.queries import HomeSearchFilter, HomeTagFilter
+from src.application.home.queries import HomeSearchFilter, HomeTagFilter, PlanSearchFilter
 from src.enums import GalleryImageTypeEnum
 from src.http.schemas.homes import (
     BlockResponse,
@@ -44,7 +44,7 @@ class HomeQueryRepository(BaseDBEntity):
         metro_stations = [MetroStationResponse(**station) for station in home_row.metro_stations]
 
         blocks = await self._get_blocks(home_uuid)
-        plans = await self._get_plans(home_uuid)
+        plans = await self.search_plans(home_uuid=home_uuid, filters=PlanSearchFilter())
         gallery = await self._get_gallery(home_uuid)
 
         return HomeResponse(
@@ -102,11 +102,11 @@ class HomeQueryRepository(BaseDBEntity):
         blocks_result = await self._connection.execute(select(BlockTable).where(BlockTable.home_uuid == home_uuid))
         return [BlockResponse(**row) for row in blocks_result.mappings()]
 
-    async def _get_plans(self, home_uuid: UUID) -> list[PlanResponse]:
+    async def search_plans(self, home_uuid: UUID, filters: PlanSearchFilter) -> list[PlanResponse]:
         agreement_type_alias = AgreementTypeTable.__table__.alias()
         block_alias = BlockTable.__table__.alias()
 
-        plans_result = await self._connection.execute(
+        query = (
             select(
                 PlanTable.block_uuid,
                 PlanTable.rooms,
@@ -121,6 +121,8 @@ class HomeQueryRepository(BaseDBEntity):
                 func.array_agg(func.distinct(PlanTable.floor)).label("floors"),
                 block_alias.c.name.label("block_name"),
                 block_alias.c.floors.label("floors_by_block"),
+                block_alias.c.delivery_date.label("delivery_date"),
+                block_alias.c.wall_type.label("wall_type"),
                 agreement_type_alias.c.name.label("agreement"),
             )
             .join(block_alias, PlanTable.block_uuid == block_alias.c.uuid)
@@ -139,9 +141,50 @@ class HomeQueryRepository(BaseDBEntity):
                 PlanTable.img_path,
                 block_alias.c.name.label("block_name"),
                 block_alias.c.floors.label("floors_by_block"),
+                block_alias.c.delivery_date.label("delivery_date"),
+                block_alias.c.wall_type.label("wall_type"),
                 agreement_type_alias.c.name.label("agreement"),
             )
         )
+
+        if filters.rooms:
+            query = query.where(PlanTable.rooms.in_(filters.rooms))
+        if filters.price_from is not None:
+            query = query.where(PlanTable.price_base >= filters.price_from)
+        if filters.price_to is not None:
+            query = query.where(PlanTable.price_base <= filters.price_to)
+        if filters.square_total_from is not None:
+            query = query.where(PlanTable.square_total >= filters.square_total_from)
+        if filters.square_total_to is not None:
+            query = query.where(PlanTable.square_total <= filters.square_total_to)
+        if filters.square_kitchen_from is not None:
+            query = query.where(PlanTable.square_kitchen >= filters.square_kitchen_from)
+        if filters.square_kitchen_to is not None:
+            query = query.where(PlanTable.square_kitchen <= filters.square_kitchen_to)
+        if filters.trim_type:
+            query = query.where(PlanTable.trim.in_(filters.trim_type))
+        if filters.bathroom_type:
+            query = query.where(PlanTable.bathroom_type.in_(filters.bathroom_type))
+        if filters.roof_height_min is not None:
+            query = query.where(PlanTable.roof_height >= filters.roof_height_min)
+        if filters.roof_height_max is not None:
+            query = query.where(PlanTable.roof_height <= filters.roof_height_max)
+        if filters.floor_min is not None:
+            query = query.where(PlanTable.floor >= filters.floor_min)
+        if filters.floor_max is not None:
+            query = query.where(PlanTable.floor <= filters.floor_max)
+        if filters.agreement_type:
+            query = query.where(agreement_type_alias.c.name.in_(filters.agreement_type))
+        if filters.delivery_from is not None:
+            query = query.where(block_alias.c.delivery_date >= filters.delivery_from)
+        if filters.delivery_to is not None:
+            query = query.where(block_alias.c.delivery_date <= filters.delivery_to)
+        if filters.wall_type:
+            query = query.where(block_alias.c.wall_type.in_(filters.wall_type))
+
+        query = query.limit(filters.limit).offset(filters.offset)
+
+        plans_result = await self._connection.execute(query)
         return [PlanResponse(**x) for x in plans_result.mappings()]
 
     async def _get_gallery(self, home_uuid: UUID) -> HomeGalleryResponse:
@@ -163,7 +206,7 @@ class HomeQueryRepository(BaseDBEntity):
             full=full,
         )
 
-    async def search(self, filters: HomeSearchFilter) -> list[HomePreviewResponse]:
+    async def search_homes(self, filters: HomeSearchFilter) -> list[HomePreviewResponse]:
         query = (
             select(
                 HomeTable.uuid,
@@ -228,38 +271,6 @@ class HomeQueryRepository(BaseDBEntity):
                 bucket["full"].append(row.image_path)
 
         return {uuid: HomeGalleryResponse(**data) for uuid, data in gallery.items()}
-
-    async def get_by_tag(self, filters: HomeTagFilter) -> list[HomeNameResponse]:
-        tag = filters.tag
-        score = func.word_similarity(tag, HomeTagTable.tag).label("score")
-
-        inner = (
-            select(HomeTable.uuid, HomeTable.name, score)
-            .select_from(HomeTagTable)
-            .join(HomeTable, HomeTable.uuid == HomeTagTable.home_uuid)
-        )
-
-        if filters.location:
-            inner = inner.join(HomeLocationTable, HomeLocationTable.home_uuid == HomeTable.uuid).where(
-                HomeLocationTable.location_uuid.in_(filters.location)
-            )
-
-        inner = (
-            inner.where(
-                or_(
-                    HomeTagTable.tag.ilike(f"{tag}%"),
-                    literal(tag).op("<%")(HomeTagTable.tag),
-                )
-            )
-            .distinct(HomeTable.uuid)
-            .order_by(HomeTable.uuid, score.desc())
-        )
-
-        subq = inner.subquery()
-        outer = select(subq.c.uuid, subq.c.name).order_by(subq.c.score.desc()).limit(filters.limit)
-
-        result = await self._connection.execute(outer)
-        return [HomeNameResponse(uuid=row.uuid, name=row.name) for row in result]
 
     @staticmethod
     def _apply_filters(query, filters: HomeSearchFilter):
@@ -359,3 +370,35 @@ class HomeQueryRepository(BaseDBEntity):
             )
 
         return query
+
+    async def get_by_tag(self, filters: HomeTagFilter) -> list[HomeNameResponse]:
+        tag = filters.tag
+        score = func.word_similarity(tag, HomeTagTable.tag).label("score")
+
+        inner = (
+            select(HomeTable.uuid, HomeTable.name, score)
+            .select_from(HomeTagTable)
+            .join(HomeTable, HomeTable.uuid == HomeTagTable.home_uuid)
+        )
+
+        if filters.location:
+            inner = inner.join(HomeLocationTable, HomeLocationTable.home_uuid == HomeTable.uuid).where(
+                HomeLocationTable.location_uuid.in_(filters.location)
+            )
+
+        inner = (
+            inner.where(
+                or_(
+                    HomeTagTable.tag.ilike(f"{tag}%"),
+                    literal(tag).op("<%")(HomeTagTable.tag),
+                )
+            )
+            .distinct(HomeTable.uuid)
+            .order_by(HomeTable.uuid, score.desc())
+        )
+
+        subq = inner.subquery()
+        outer = select(subq.c.uuid, subq.c.name).order_by(subq.c.score.desc()).limit(filters.limit)
+
+        result = await self._connection.execute(outer)
+        return [HomeNameResponse(uuid=row.uuid, name=row.name) for row in result]

@@ -175,7 +175,7 @@ def random_bool() -> bool:
 
 
 def random_decimal_range(min_, max_):
-    return Decimal(str(random.uniform(min_, max_)))
+    return Decimal(str(round(random.uniform(min_, max_), 2)))
 
 
 def random_date() -> date:
