@@ -1,5 +1,5 @@
 from src.application.agreements import AgreementsService
-from src.application.developers import DevelopersService
+from src.application.developer.service import DevelopersService
 from src.application.home.service import HomesService
 from src.application.locations import LocationsService
 from src.application.metro import MetroService
