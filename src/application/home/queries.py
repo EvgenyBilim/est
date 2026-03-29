@@ -64,17 +64,7 @@ class HomeSearchFilter:
             self.agreement_type = [v.lower() for v in self.agreement_type]
 
 
-@dataclass
-class HomeTagFilter:
-    tag: Annotated[str, Query(min_length=2)]
-    location: Annotated[list[UUID] | None, Query()] = None
-    limit: int = 10
-
-    def __post_init__(self):
-        self.tag = self.tag.lower().strip()
-
-
-def validate_filters(filters: HomeSearchFilter = Depends()) -> HomeSearchFilter:
+def validate_home_filters(filters: HomeSearchFilter = Depends()) -> HomeSearchFilter:
     ranges = [
         ("delivery_from", "delivery_to"),
         ("roof_height_min", "roof_height_max"),
@@ -92,3 +82,43 @@ def validate_filters(filters: HomeSearchFilter = Depends()) -> HomeSearchFilter:
                 detail=f"{from_field} cannot be greater than {to_field}",
             )
     return filters
+
+
+@dataclass
+class HomeTagFilter:
+    tag: Annotated[str, Query(min_length=2)]
+    location: Annotated[list[UUID] | None, Query()] = None
+    limit: int = 10
+
+    def __post_init__(self):
+        self.tag = self.tag.lower().strip()
+
+
+@dataclass
+class PlanSearchFilter:
+    delivery_from: date | None = None
+    delivery_to: date | None = None
+    wall_type: Annotated[list[WallTypeEnum] | None, Query()] = None
+    trim_type: Annotated[list[TrimTypeEnum] | None, Query()] = None
+    bathroom_type: Annotated[list[BathroomTypeEnum] | None, Query()] = None
+    roof_height_min: Decimal | None = None
+    roof_height_max: Decimal | None = None
+    floor_min: int | None = None
+    floor_max: int | None = None
+    agreement_type: Annotated[list[str] | None, Query()] = None
+
+    rooms: Annotated[list[RoomTypeEnum] | None, Query()] = None
+    price_from: int | None = None
+    price_to: int | None = None
+    square_total_from: Decimal | None = None
+    square_total_to: Decimal | None = None
+    square_kitchen_from: Decimal | None = None
+    square_kitchen_to: Decimal | None = None
+
+    # pagination
+    limit: int = field(default=20)
+    offset: int = field(default=0)
+
+    def __post_init__(self):
+        if self.agreement_type:
+            self.agreement_type = [v.lower() for v in self.agreement_type]

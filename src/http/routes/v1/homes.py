@@ -5,7 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.application.home.queries import (
     HomeSearchFilter,
     HomeTagFilter,
-    validate_filters,
+    PlanSearchFilter,
+    validate_home_filters,
 )
 from src.application.home.service import HomesService
 from src.dependencies import homes_service_dependency
@@ -14,6 +15,7 @@ from src.http.schemas.homes import (
     HomeNameResponse,
     HomePreviewResponse,
     HomeResponse,
+    PlanResponse,
 )
 
 router = APIRouter(prefix="/homes")
@@ -36,6 +38,15 @@ async def get_by_tag(
     return await service.get_by_tag(tag=tag)
 
 
+@router.get("/{home_uuid}/plans", response_model=list[PlanResponse])
+async def search_plans(
+    home_uuid: UUID,
+    filters: PlanSearchFilter = Depends(),
+    service: HomesService = Depends(homes_service_dependency),
+) -> list[PlanResponse]:
+    return await service.search_plans(home_uuid=home_uuid, filters=filters)
+
+
 @router.get("/{home_uuid}", response_model=HomeResponse)
 async def get_by_uuid(
     home_uuid: UUID,
@@ -48,8 +59,8 @@ async def get_by_uuid(
 
 
 @router.get("", response_model=list[HomePreviewResponse])
-async def search(
-    filters: HomeSearchFilter = Depends(validate_filters),
+async def search_homes(
+    filters: HomeSearchFilter = Depends(validate_home_filters),
     service: HomesService = Depends(homes_service_dependency),
 ) -> list[HomePreviewResponse]:
-    return await service.search(filters=filters)
+    return await service.search_homes(filters=filters)

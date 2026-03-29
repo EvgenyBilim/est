@@ -237,6 +237,7 @@ class BlockResponse(BaseModel):
 class PlanResponse(BaseModel):
     # todo: тут что-то нужно придумать, чтобы переходить по uuid на страницу планировки
     block_uuid: UUID
+    block_name: str
     rooms: RoomTypeEnum
     square_total: Decimal
     square_kitchen: Decimal
@@ -247,7 +248,8 @@ class PlanResponse(BaseModel):
     price_discount: int | None
     floors: list[int] | None
     floors_by_block: int
-    block_name: str
+    delivery_date: date
+    wall_type: WallTypeEnum
     agreement: str | None
     img_path: str | None
 
