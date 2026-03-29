@@ -13,10 +13,15 @@ class DeveloperCreateSchema(BaseModel):
 # Response-модели
 
 
-class DeveloperModel(BaseModel):
+class DeveloperResponse(BaseModel):
     uuid: UUID
     name: str
     logo: str
     description: str
     created_at: datetime
     updated_at: datetime | None
+
+
+class DeveloperNameResponse(BaseModel):
+    uuid: UUID
+    name: str
