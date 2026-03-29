@@ -94,6 +94,23 @@ class GetStationsInfoByUUIDs(BaseDBEntity):
         return [MetroStationInfoModel(**row) for row in rows.mappings()]
 
 
+class GetStationsInfoByCity(BaseDBEntity):
+    async def __call__(self, city_uuid: UUID) -> list[MetroStationInfoModel]:
+        query = (
+            select(
+                MetroStation.uuid,
+                MetroStation.name,
+                MetroLine.color,
+            )
+            .join(MetroLine, MetroStation.metro_line_uuid == MetroLine.uuid)
+            .join(Metropolitan, MetroLine.metropolitan_uuid == Metropolitan.uuid)
+            .where(Metropolitan.location_uuid == city_uuid)
+            .order_by(MetroLine.name, MetroStation.name)
+        )
+        rows = await self._connection.execute(query)
+        return [MetroStationInfoModel(**row) for row in rows.mappings()]
+
+
 class MetroRepository:
     def __init__(self, connection: AsyncConnection):
         self.create_metropolitans = CreateMetropolitans(connection=connection)
@@ -105,3 +122,4 @@ class MetroRepository:
         self.get_city_by_stations = GetCityByStations(connection=connection)
         self.get_stations_by_city = GetStationsByCity(connection=connection)
         self.get_stations_info_by_uuids = GetStationsInfoByUUIDs(connection=connection)
+        self.get_stations_info_by_city = GetStationsInfoByCity(connection=connection)

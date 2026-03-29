@@ -28,6 +28,13 @@ class GetByCountry(BaseDBEntity):
         return [AgreementTypeModel(**row) for row in rows.mappings()]
 
 
+class GetByLocations(BaseDBEntity):
+    async def __call__(self, location_uuids: list[UUID]) -> list[AgreementTypeModel]:
+        query = select(AgreementType).where(AgreementType.location_uuid.in_(location_uuids))
+        rows = await self._connection.execute(query)
+        return [AgreementTypeModel(**row) for row in rows.mappings()]
+
+
 class GetCountriesByAgreementTypes(BaseDBEntity):
     async def __call__(self, agreement_uuids: list[UUID]) -> list[UUID]:
         if not agreement_uuids:
@@ -53,5 +60,6 @@ class AgreementsRepository:
         self.create = Create(connection=connection)
         self.get = Get(connection=connection)
         self.get_by_country = GetByCountry(connection=connection)
+        self.get_by_locations = GetByLocations(connection=connection)
         self.get_countries_by_agreement_types = GetCountriesByAgreementTypes(connection=connection)
         self.get_by_uuids = GetByUUIDs(connection=connection)

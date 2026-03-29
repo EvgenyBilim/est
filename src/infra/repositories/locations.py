@@ -43,6 +43,7 @@ class GetLocationPath(LocationsRepositoryMixin):
                 self.table.name,
                 self.table.alias,
                 self.table.type,
+                self.table.priority,
                 self.table.created_at,
                 self.table.updated_at,
                 literal_column("0").label("depth"),
@@ -60,6 +61,7 @@ class GetLocationPath(LocationsRepositoryMixin):
                 self.table.name,
                 self.table.alias,
                 self.table.type,
+                self.table.priority,
                 self.table.created_at,
                 self.table.updated_at,
                 (parent_chain.c.depth + 1).label("depth"),
@@ -77,6 +79,7 @@ class GetLocationPath(LocationsRepositoryMixin):
             cte.c.name,
             cte.c.alias,
             cte.c.type,
+            cte.c.priority,
             cte.c.created_at,
             cte.c.updated_at,
         ).order_by(cte.c.depth)
@@ -88,6 +91,17 @@ class GetLocationPath(LocationsRepositoryMixin):
 class GetByUUIDs(LocationsRepositoryMixin):
     async def __call__(self, location_uuids: list[UUID]) -> list[LocationResponse]:
         query = select(self.table).where(self.table.uuid.in_(location_uuids))
+        rows = await self._connection.execute(query)
+        return [LocationResponse(**row) for row in rows.mappings()]
+
+
+class GetChildren(LocationsRepositoryMixin):
+    async def __call__(self, location_uuid: UUID) -> list[LocationResponse]:
+        query = (
+            select(self.table)
+            .where(self.table.parent_uuid == location_uuid)
+            .order_by(nullslast(self.table.priority), self.table.name)
+        )
         rows = await self._connection.execute(query)
         return [LocationResponse(**row) for row in rows.mappings()]
 
@@ -168,4 +182,5 @@ class LocationsRepository:
         self.get_by_type = GetByType(connection=connection)
         self.get_location_path = GetLocationPath(connection=connection)
         self.get_by_uuids = GetByUUIDs(connection=connection)
+        self.get_children = GetChildren(connection=connection)
         self.get_search_areas = GetSearchAreas(connection=connection)

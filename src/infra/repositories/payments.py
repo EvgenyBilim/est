@@ -35,6 +35,13 @@ class GetByUUIDs(BaseDBEntity):
         return [PaymentTypeModel(**row) for row in rows.mappings()]
 
 
+class GetByLocations(BaseDBEntity):
+    async def __call__(self, location_uuids: list[UUID]) -> list[PaymentTypeModel]:
+        query = select(PaymentType).where(PaymentType.location_uuid.in_(location_uuids))
+        rows = await self._connection.execute(query)
+        return [PaymentTypeModel(**row) for row in rows.mappings()]
+
+
 class GetCountriesByPaymentTypes(BaseDBEntity):
     async def __call__(self, payment_uuids: list[UUID]) -> list[UUID]:
         if not payment_uuids:
@@ -51,5 +58,6 @@ class PaymentsRepository:
         self.create = Create(connection=connection)
         self.get = Get(connection=connection)
         self.get_by_country = GetByCountry(connection=connection)
+        self.get_by_locations = GetByLocations(connection=connection)
         self.get_by_uuids = GetByUUIDs(connection=connection)
         self.get_countries_by_payment_types = GetCountriesByPaymentTypes(connection=connection)

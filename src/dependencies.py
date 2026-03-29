@@ -4,6 +4,7 @@ from src.application.agreements import AgreementsService
 from src.application.developer.service import DevelopersService
 from src.application.home.home_info_service import HomeInfoService
 from src.application.home.service import HomesService
+from src.application.home_filters import HomeFiltersService
 from src.application.locations import LocationsService
 from src.application.metro import MetroService
 from src.application.payments import PaymentsService
@@ -169,6 +170,16 @@ async def homes_service_dependency(state: STATE) -> HomesService:
         home_command_repo=await home_command_repository_dependency(state),
         home_query_repo=await home_query_repository_dependency(state),
         home_info_service=await home_info_service_dependency(state),
+    )
+
+
+@app_dep(cache=True)
+async def home_filters_service_dependency(state: STATE) -> HomeFiltersService:
+    return HomeFiltersService(
+        locations_repo=await locations_repository_dependency(state),
+        payments_repo=await payments_repository_dependency(state),
+        agreements_repo=await agreements_repository_dependency(state),
+        metro_repo=await metro_repository_dependency(state),
     )
 
 

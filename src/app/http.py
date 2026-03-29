@@ -3,6 +3,7 @@ from fastapi import APIRouter, FastAPI
 
 from src.http.routes.v1.agreements import router as agreement_router
 from src.http.routes.v1.developers import router as developers_router
+from src.http.routes.v1.filters import router as filters_router
 from src.http.routes.v1.homes import router as homes_router
 from src.http.routes.v1.locations import router as locations_router
 from src.http.routes.v1.metro import router as metro_router
@@ -24,6 +25,7 @@ def create_app(settings: Settings) -> FastAPI:
     router.include_router(locations_router)
     router.include_router(metro_router)
     router.include_router(homes_router)
+    router.include_router(filters_router)
     router.include_router(seeder_router)
     app.include_router(router)
 
