@@ -110,5 +110,7 @@ class HomesService:
             return await repo.get_by_tag(tag)
 
     async def search_plans(self, home_uuid: UUID, filters: PlanSearchFilter) -> list[PlanResponse]:
+        """Получение планировок дома по параметрам"""
+
         async with self._home_query_repo() as repo:
             return await repo.search_plans(home_uuid=home_uuid, filters=filters)
