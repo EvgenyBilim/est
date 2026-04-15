@@ -16,6 +16,7 @@ from src.http.schemas.homes import (
     HomeRoofHeightResponse,
     LocationResponse,
     MetroStationResponse,
+    PlanGroupResponse,
     PlanResponse,
     StatsByRoomsResponse,
 )
@@ -30,6 +31,7 @@ from src.infra.models.home import (
     HomeMetroStation as HomeMetroStationTable,
     HomeTag as HomeTagTable,
     Plan as PlanTable,
+    PlanGroup as PlanGroupTable,
 )
 from src.infra.repositories.base import BaseDBEntity
 
@@ -186,6 +188,64 @@ class HomeQueryRepository(BaseDBEntity):
 
         plans_result = await self._connection.execute(query)
         return [PlanResponse(**x) for x in plans_result.mappings()]
+
+    async def get_group_plan_by_uuid(self, group_uuid: UUID) -> PlanGroupResponse | None:
+        agreement_type_alias = AgreementTypeTable.__table__.alias()
+        block_alias = BlockTable.__table__.alias()
+        home_alias = HomeTable.__table__.alias()
+
+        query = (
+            select(
+                PlanGroupTable.group_uuid,
+                home_alias.c.uuid.label("home_uuid"),
+                home_alias.c.name.label("home_name"),
+                home_alias.c.alias.label("home_alias"),
+                block_alias.c.name.label("block_name"),
+                block_alias.c.delivery_date.label("delivery_date"),
+                block_alias.c.wall_type.label("wall_type"),
+                PlanTable.rooms,
+                PlanTable.square_total,
+                PlanTable.square_kitchen,
+                PlanTable.trim,
+                PlanTable.bathroom_type,
+                PlanTable.roof_height,
+                PlanTable.price_base,
+                PlanTable.price_discount,
+                PlanTable.img_path,
+                func.array_agg(func.distinct(PlanTable.floor)).label("floors"),
+                agreement_type_alias.c.name.label("agreement"),
+            )
+            .join(PlanTable, PlanGroupTable.plan_uuid == PlanTable.uuid)
+            .join(block_alias, PlanTable.block_uuid == block_alias.c.uuid)
+            .join(home_alias, block_alias.c.home_uuid == home_alias.c.uuid)
+            .join(agreement_type_alias, PlanTable.agreement_uuid == agreement_type_alias.c.uuid)
+            .where(PlanGroupTable.group_uuid == group_uuid)
+            .group_by(
+                PlanGroupTable.group_uuid,
+                home_alias.c.uuid,
+                home_alias.c.name,
+                home_alias.c.alias,
+                block_alias.c.name,
+                block_alias.c.delivery_date,
+                block_alias.c.wall_type,
+                PlanTable.rooms,
+                PlanTable.square_total,
+                PlanTable.square_kitchen,
+                PlanTable.trim,
+                PlanTable.bathroom_type,
+                PlanTable.roof_height,
+                PlanTable.price_base,
+                PlanTable.price_discount,
+                PlanTable.img_path,
+                agreement_type_alias.c.name,
+            )
+        )
+
+        result = await self._connection.execute(query)
+        row = result.mappings().first()
+        if not row:
+            return None
+        return PlanGroupResponse(**row)
 
     async def _get_gallery(self, home_uuid: UUID) -> HomeGalleryResponse:
         gallery = await self._connection.execute(

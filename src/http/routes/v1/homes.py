@@ -15,6 +15,7 @@ from src.http.schemas.homes import (
     HomeNameResponse,
     HomePreviewResponse,
     HomeResponse,
+    PlanGroupResponse,
     PlanResponse,
 )
 
@@ -36,6 +37,17 @@ async def get_by_tag(
     service: HomesService = Depends(homes_service_dependency),
 ) -> list[HomeNameResponse]:
     return await service.get_by_tag(tag=tag)
+
+
+@router.get("/plans/{group_uuid}", response_model=PlanGroupResponse)
+async def get_group_plan(
+    group_uuid: UUID,
+    service: HomesService = Depends(homes_service_dependency),
+) -> PlanGroupResponse:
+    plan_group = await service.get_group_plan_by_uuid(group_uuid=group_uuid)
+    if not plan_group:
+        raise HTTPException(status_code=404, detail=f"Plan group {group_uuid} not found")
+    return plan_group
 
 
 @router.get("/{home_uuid}/plans", response_model=list[PlanResponse])
