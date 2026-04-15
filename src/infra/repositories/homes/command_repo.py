@@ -1,5 +1,5 @@
 from collections import defaultdict
-from uuid import UUID
+from uuid import UUID, uuid5
 
 from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
@@ -15,8 +15,11 @@ from src.infra.models.home import (
     HomePaymentType as HomePaymentTypeTable,
     HomeTag as HomeTagTable,
     Plan as PlanTable,
+    PlanGroup as PlanGroupTable,
 )
 from src.infra.repositories.base import BaseDBEntity
+
+_PLAN_GROUP_NAMESPACE = UUID("12345678-1234-5678-1234-567812345678")
 
 
 class HomeCommandRepository(BaseDBEntity):
@@ -113,10 +116,17 @@ class HomeCommandRepository(BaseDBEntity):
     async def _sync_plans(self, blocks: list[Block]) -> None:
         all_plan_uuids = []
         all_plans_data = []
+        plan_groups_data = []
         block_uuids = [b.uuid for b in blocks]
 
         for block in blocks:
             for plan in block.plans:
+                group_uuid = uuid5(
+                    _PLAN_GROUP_NAMESPACE,
+                    f"{plan.block_uuid}:{plan.rooms}:{plan.square_total}:{plan.square_kitchen}:"
+                    f"{plan.trim}:{plan.bathroom_type}:{plan.roof_height}:{plan.price_base}:"
+                    f"{plan.price_discount}:{plan.agreement_uuid}",
+                )
                 all_plan_uuids.append(plan.uuid)
                 all_plans_data.append(
                     {
@@ -135,6 +145,7 @@ class HomeCommandRepository(BaseDBEntity):
                         "img_path": plan.img_path,
                     }
                 )
+                plan_groups_data.append({"plan_uuid": plan.uuid, "group_uuid": group_uuid})
 
         delete_query = delete(PlanTable).where(PlanTable.block_uuid.in_(block_uuids))
         if all_plan_uuids:
@@ -162,6 +173,10 @@ class HomeCommandRepository(BaseDBEntity):
                 "floor",
                 "img_path",
             ],
+        )
+
+        await self._connection.execute(
+            insert(PlanGroupTable).values(plan_groups_data).on_conflict_do_nothing(index_elements=["plan_uuid"])
         )
 
     async def _sync_gallery(self, home: Home) -> None:

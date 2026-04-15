@@ -10,7 +10,7 @@ from src.application.home.home_info_service import HomeInfoService
 from src.application.home.queries import HomeSearchFilter, HomeTagFilter, PlanSearchFilter
 from src.domain.home.factory import HomeFactory
 from src.errors import NotFoundError
-from src.http.schemas.homes import HomeNameResponse, HomePreviewResponse, HomeResponse, PlanResponse
+from src.http.schemas.homes import HomeNameResponse, HomePreviewResponse, HomeResponse, PlanGroupResponse, PlanResponse
 from src.infra.components.repository import AcquireTxRepository
 from src.infra.repositories.homes.command_repo import HomeCommandRepository
 from src.infra.repositories.homes.query_repo import HomeQueryRepository
@@ -114,3 +114,9 @@ class HomesService:
 
         async with self._home_query_repo() as repo:
             return await repo.search_plans(home_uuid=home_uuid, filters=filters)
+
+    async def get_group_plan_by_uuid(self, group_uuid: UUID) -> PlanGroupResponse | None:
+        """Получение агрегированной планировки по UUID группы"""
+
+        async with self._home_query_repo() as repo:
+            return await repo.get_group_plan_by_uuid(group_uuid=group_uuid)

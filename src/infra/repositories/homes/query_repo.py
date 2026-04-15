@@ -16,6 +16,7 @@ from src.http.schemas.homes import (
     HomeRoofHeightResponse,
     LocationResponse,
     MetroStationResponse,
+    PlanGroupResponse,
     PlanResponse,
     StatsByRoomsResponse,
 )
@@ -30,6 +31,7 @@ from src.infra.models.home import (
     HomeMetroStation as HomeMetroStationTable,
     HomeTag as HomeTagTable,
     Plan as PlanTable,
+    PlanGroup as PlanGroupTable,
 )
 from src.infra.repositories.base import BaseDBEntity
 
@@ -186,6 +188,131 @@ class HomeQueryRepository(BaseDBEntity):
 
         plans_result = await self._connection.execute(query)
         return [PlanResponse(**x) for x in plans_result.mappings()]
+
+    async def get_group_plan_by_uuid(self, group_uuid: UUID) -> PlanGroupResponse | None:
+        agreement_type_alias = AgreementTypeTable.__table__.alias()
+        block_alias = BlockTable.__table__.alias()
+        home_alias = HomeTable.__table__.alias()
+        home_info_alias = HomeInfoTable.__table__.alias()
+        developer_alias = DeveloperTable.__table__.alias()
+
+        query = (
+            select(
+                PlanGroupTable.group_uuid,
+                home_alias.c.uuid.label("home_uuid"),
+                home_alias.c.name.label("home_name"),
+                home_alias.c.alias.label("home_alias"),
+                home_alias.c.description.label("home_description"),
+                home_alias.c.housing_class,
+                home_alias.c.parking_types,
+                home_alias.c.is_apartment,
+                home_alias.c.has_closed_territory,
+                home_alias.c.has_security,
+                home_alias.c.coordinates,
+                developer_alias.c.uuid.label("developer_uuid"),
+                developer_alias.c.name.label("developer_name"),
+                block_alias.c.name.label("block_name"),
+                block_alias.c.delivery_date.label("delivery_date"),
+                block_alias.c.wall_type.label("wall_type"),
+                PlanTable.rooms,
+                PlanTable.square_total,
+                PlanTable.square_kitchen,
+                PlanTable.trim,
+                PlanTable.bathroom_type,
+                PlanTable.roof_height,
+                PlanTable.price_base,
+                PlanTable.price_discount,
+                PlanTable.img_path,
+                func.array_agg(func.distinct(PlanTable.floor)).label("floors"),
+                agreement_type_alias.c.name.label("agreement"),
+                home_info_alias.c.payment_types,
+                home_info_alias.c.locations,
+                home_info_alias.c.metro_stations,
+            )
+            .join(PlanTable, PlanGroupTable.plan_uuid == PlanTable.uuid)
+            .join(block_alias, PlanTable.block_uuid == block_alias.c.uuid)
+            .join(home_alias, block_alias.c.home_uuid == home_alias.c.uuid)
+            .join(home_info_alias, home_alias.c.uuid == home_info_alias.c.uuid)
+            .join(developer_alias, home_alias.c.developer_uuid == developer_alias.c.uuid)
+            .join(agreement_type_alias, PlanTable.agreement_uuid == agreement_type_alias.c.uuid)
+            .where(PlanGroupTable.group_uuid == group_uuid)
+            .group_by(
+                PlanGroupTable.group_uuid,
+                home_alias.c.uuid,
+                home_alias.c.name,
+                home_alias.c.alias,
+                home_alias.c.description,
+                home_alias.c.housing_class,
+                home_alias.c.parking_types,
+                home_alias.c.is_apartment,
+                home_alias.c.has_closed_territory,
+                home_alias.c.has_security,
+                home_alias.c.coordinates,
+                developer_alias.c.uuid,
+                developer_alias.c.name,
+                block_alias.c.name,
+                block_alias.c.delivery_date,
+                block_alias.c.wall_type,
+                PlanTable.rooms,
+                PlanTable.square_total,
+                PlanTable.square_kitchen,
+                PlanTable.trim,
+                PlanTable.bathroom_type,
+                PlanTable.roof_height,
+                PlanTable.price_base,
+                PlanTable.price_discount,
+                PlanTable.img_path,
+                agreement_type_alias.c.name,
+                home_info_alias.c.payment_types,
+                home_info_alias.c.locations,
+                home_info_alias.c.metro_stations,
+            )
+        )
+
+        result = await self._connection.execute(query)
+        row = result.mappings().first()
+        if not row:
+            return None
+
+        gallery = await self._get_gallery(row["home_uuid"])
+
+        return PlanGroupResponse(
+            group_uuid=row["group_uuid"],
+            home_uuid=row["home_uuid"],
+            home_name=row["home_name"],
+            home_alias=row["home_alias"],
+            home_description=row["home_description"],
+            housing_class=row["housing_class"],
+            parking_types=row["parking_types"],
+            is_apartment=row["is_apartment"],
+            has_closed_territory=row["has_closed_territory"],
+            has_security=row["has_security"],
+            coordinates=row["coordinates"],
+            developer=HomeDeveloperResponse(
+                uuid=row["developer_uuid"],
+                name=row["developer_name"],
+            ),
+            block_name=row["block_name"],
+            delivery_date=row["delivery_date"],
+            wall_type=row["wall_type"],
+            rooms=row["rooms"],
+            square_total=row["square_total"],
+            square_kitchen=row["square_kitchen"],
+            trim=row["trim"],
+            bathroom_type=row["bathroom_type"],
+            roof_height=row["roof_height"],
+            price_base=row["price_base"],
+            price_discount=row["price_discount"],
+            agreement=row["agreement"],
+            img_path=row["img_path"],
+            floors=row["floors"],
+            payment_types=row["payment_types"],
+            locations=LocationResponse(**row["locations"]) if row["locations"] else None,
+            metro_stations=[MetroStationResponse(**s) for s in row["metro_stations"]]
+            if row["metro_stations"]
+            else None,
+            gallery=gallery,
+        )
 
     async def _get_gallery(self, home_uuid: UUID) -> HomeGalleryResponse:
         gallery = await self._connection.execute(

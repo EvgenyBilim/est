@@ -86,6 +86,13 @@ class Block(BaseEstModel):
     delivery_date = Column(Date, nullable=False, index=True)
 
 
+class PlanGroup(BaseEstModel):
+    __tablename__ = "plan_groups"
+
+    plan_uuid = Column(UUID(as_uuid=True), ForeignKey("plans.uuid", ondelete="CASCADE"), primary_key=True)
+    group_uuid = Column(UUID(as_uuid=True), nullable=False, index=True)
+
+
 class Plan(BaseEstModel):
     __tablename__ = "plans"
 
