@@ -258,6 +258,14 @@ class PlanGroupResponse(BaseModel):
     home_uuid: UUID
     home_name: str
     home_alias: str
+    home_description: str | None
+    housing_class: HousingClassEnum
+    parking_types: list[ParkingTypeEnum]
+    is_apartment: bool
+    has_closed_territory: bool
+    has_security: bool
+    coordinates: list[Decimal]
+    developer: HomeDeveloperResponse
     block_name: str
     delivery_date: date
     wall_type: WallTypeEnum
@@ -272,6 +280,10 @@ class PlanGroupResponse(BaseModel):
     agreement: str | None
     img_path: str | None
     floors: list[int]
+    payment_types: list[str] | None
+    locations: LocationResponse | None
+    metro_stations: list[MetroStationResponse] | None
+    gallery: HomeGalleryResponse | None
 
 
 class HomeResponse(BaseModel):
